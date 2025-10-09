@@ -1,0 +1,114 @@
+[
+  {
+    "id": "b30-donkerblauw",
+    "name": "B30 Donkerblauw",
+    "price": 120.0,
+    "images": [
+      "assets/b30-donkerblauw.png"
+    ],
+    "sizes": {
+      "41": true,
+      "42": true,
+      "43": true,
+      "44": true,
+      "45": true
+    },
+    "category": "shoes"
+  },
+  {
+    "id": "b25-zwart-wit",
+    "name": "B25 Zwart/Wit",
+    "price": 120.0,
+    "images": [
+      "assets/b25-zwart-wit.png"
+    ],
+    "sizes": {
+      "41": true,
+      "42": true,
+      "43": true,
+      "44": true,
+      "45": true
+    },
+    "category": "shoes"
+  },
+  {
+    "id": "b30-wit",
+    "name": "B30 Wit",
+    "price": 120.0,
+    "images": [
+      "assets/b30-wit.png"
+    ],
+    "sizes": {
+      "41": true,
+      "42": true,
+      "43": true,
+      "44": true,
+      "45": true
+    },
+    "category": "shoes"
+  },
+  {
+    "id": "hermes-bounce-oranje-zwart-wit",
+    "name": "Hermes Bounce Oranje/Zwart/Wit",
+    "price": 130.0,
+    "images": [
+      "assets/hermes-bounce-oranje-zwart-wit.png"
+    ],
+    "sizes": {
+      "41": true,
+      "42": true,
+      "43": true,
+      "44": true,
+      "45": true
+    },
+    "category": "shoes"
+  },
+  {
+    "id": "hermes-bounce-zwart-wit",
+    "name": "Hermes Bounce Zwart/Wit",
+    "price": 130.0,
+    "images": [
+      "assets/hermes-bounce-zwart-wit.png"
+    ],
+    "sizes": {
+      "41": true,
+      "42": true,
+      "43": true,
+      "44": true,
+      "45": true
+    },
+    "category": "shoes"
+  },
+  {
+    "id": "hermes-grijs",
+    "name": "Hermes Grijs",
+    "price": 130.0,
+    "images": [
+      "assets/hermes-grijs.png"
+    ],
+    "sizes": {
+      "41": true,
+      "42": true,
+      "43": true,
+      "44": true,
+      "45": true
+    },
+    "category": "shoes"
+  },
+  {
+    "id": "chanel-runners",
+    "name": "Channel Runners",
+    "price": 130.0,
+    "images": [
+      "assets/chanel-runners.png"
+    ],
+    "sizes": {
+      "41": true,
+      "42": true,
+      "43": true,
+      "44": true,
+      "45": true
+    },
+    "category": "shoes"
+  }
+]

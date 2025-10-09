@@ -1,0 +1,17 @@
+SkiClothing v5.3 — Shopify (Storefront API) koppeling
+
+Vul je gegevens in in 'app.js' (bovenaan in de SHOPIFY-config):
+  - domain:   JOUW-STORE.myshopify.com
+  - token:    Storefront access token (Admin -> Settings -> Apps & sales channels -> Develop apps -> Create app -> Storefront API -> Install)
+  - api:      Laat staan op 2024-07 of pas aan naar jouw versie.
+
+Categorie-handles in Shopify moeten zijn:
+  - schoenen
+  - jassen
+  - trainingspakken
+
+Afrekenen:
+  - In het winkelmandje kun je kiezen voor 'Afrekenen (Shopify)'. Dat maakt een Shopify-cart en opent de checkoutUrl.
+  - 'Afrekenen (WhatsApp)' blijft als alternatief.
+
+Als items geen bijpassende variant vinden (maat komt niet overeen), controleer de variant-titels in Shopify.

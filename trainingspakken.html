@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Trainingspakken — SkiClothing</title>
+  <link rel="icon" href="assets/logo.png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-category="tracksuits">
+
+  <header class="site-header">
+    <div class="brand">
+      <a href="index.html" class="brand-link">
+        <img src="assets/logo.png" alt="SkiClothing logo" class="logo" />
+      </a>
+      <div class="titles">
+        <a href="index.html" class="title-link"><h1>SkiClothing</h1></a>
+      </div>
+    </div>
+    <button id="openMenu" class="hamburger" aria-label="Menu"><span class="bars"></span></button>
+    <a class="cta-top" href="#shop">Bekijk producten</a>
+    <button id="openCart" class="icon-btn" aria-label="Winkelmandje">
+      <span class="cart-count" id="cartCount">0</span> 🛒
+    </button>
+  </header>
+
+
+  <section class="hero reveal" id="top">
+    <h2>Trainingspakken</h2>
+  </section>
+
+  <section class="filters">
+    <input type="search" id="q" placeholder="Zoek..."/>
+    <select id="sort">
+      <option value="rel">Relevantie</option>
+      <option value="asc">Prijs: laag → hoog</option>
+      <option value="desc">Prijs: hoog → laag</option>
+    </select>
+    <button id="openGuide" class="ghost">Maattabel</button>
+  </section>
+
+  <main id="productGrid" class="grid"></main>
+
+
+  <footer class="site-footer">
+    <div class="socials">
+      <a href="https://www.tiktok.com/@skiclothingg" target="_blank" rel="noopener" class="chip">TikTok @skiclothingg</a>
+      <a href="https://www.snapchat.com/add/skiclothingg" target="_blank" rel="noopener" class="chip">Snapchat skiclothingg</a>
+      <a href="https://wa.me/31628683759" target="_blank" rel="noopener" class="chip">WhatsApp 06 2868 3759</a>
+    </div>
+    <p>© <span id="year"></span> SkiClothing · Zoetermeer</p>
+  </footer>
+
+  <aside id="menuDrawer" class="menu-drawer" aria-hidden="true">
+    <div class="menu-panel">
+      <div class="menu-head">
+        <strong>Menu</strong>
+        <button id="closeMenu" class="icon-btn">✕</button>
+      </div>
+      <nav class="menu-links">
+        <a href="schoenen.html">Schoenen</a>
+        <a href="jassen.html">Jassen</a>
+        <a href="trainingspakken.html">Trainingspakken</a>
+      </nav>
+    </div>
+  </aside>
+
+
+  <aside id="cartDrawer" class="drawer" aria-hidden="true">
+    <div class="drawer-content">
+      <div class="drawer-header">
+        <h3>Winkelmandje</h3>
+        <button id="closeCart" class="icon-btn" aria-label="Sluiten">✕</button>
+      </div>
+      <div id="cartItems" class="cart-items"></div>
+      <div class="checkout">
+        <h4>Jouw gegevens</h4>
+        <form id="checkoutForm">
+          <div class="field"><label>Naam<input required name="name" placeholder="Voor- en achternaam" /></label></div>
+          <div class="field"><label>Adres<input required name="address" placeholder="Straat + nr, Stad" /></label></div>
+          <div class="field two"><label>Postcode<input required name="postcode" placeholder="1234 AB" /></label><label>Telefoon<input required name="phone" placeholder="06 ..." /></label></div>
+          <div class="field"><label>E-mail<input required type="email" name="email" placeholder="jij@example.com" /></label></div>
+          <div class="field"><label>Opmerkingen (optioneel)<textarea name="notes" rows="2" placeholder="Kleur / extra info"></textarea></label></div>
+          <button class="primary" type="submit">Afrekenen (WhatsApp)</button>
+          <button class="ghost" id="checkoutShopify" type="button">Afrekenen (Shopify)</button>
+          <p class="tiny muted">Je wordt doorgestuurd naar WhatsApp met je bestelling en klantgegevens.</p>
+        </form>
+      </div>
+    </div>
+  </aside>
+
+
+  <script src="app.js"></script>
+</body>
+</html>
