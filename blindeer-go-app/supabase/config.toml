@@ -1,0 +1,66 @@
+# Configuratie voor de Supabase CLI (lokale ontwikkeling en `supabase config push`).
+# Controleer na het koppelen ook de instellingen in het Supabase-dashboard (zie docs/SETUP.md).
+project_id = "blindeer-go-planning"
+
+[api]
+enabled = true
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+major_version = 17
+
+[realtime]
+enabled = true
+
+[storage]
+enabled = true
+file_size_limit = "10MiB"
+
+[auth]
+enabled = true
+site_url = "blindeergo://auth"
+additional_redirect_urls = ["blindeergo://**", "exp://**"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+# Alleen uitgenodigde accounts: zelf registreren staat uit.
+enable_signup = false
+enable_anonymous_sign_ins = false
+minimum_password_length = 10
+password_requirements = "letters_digits"
+
+[auth.email]
+enable_signup = false
+enable_confirmations = true
+# Nieuw e-mailadres pas actief na bevestiging (oud én nieuw adres).
+double_confirm_changes = true
+# Wachtwoord wijzigen vereist recente (her)authenticatie.
+secure_password_change = true
+max_frequency = "1m0s"
+otp_length = 6
+otp_expiry = 3600
+
+[auth.email.template.invite]
+subject = "Uitnodiging Blindeer & Go Planning"
+content_path = "./supabase/templates/invite.html"
+
+[auth.email.template.recovery]
+subject = "Wachtwoord herstellen – Blindeer & Go Planning"
+content_path = "./supabase/templates/recovery.html"
+
+[auth.email.template.email_change]
+subject = "Bevestig je nieuwe e-mailadres – Blindeer & Go Planning"
+content_path = "./supabase/templates/email_change.html"
+
+[auth.email.template.reauthentication]
+subject = "Bevestigingscode – Blindeer & Go Planning"
+content_path = "./supabase/templates/reauthentication.html"
+
+[auth.email.template.magic_link]
+subject = "Inlogcode – Blindeer & Go Planning"
+content_path = "./supabase/templates/magic_link.html"
+
+[functions.admin-users]
+verify_jwt = true

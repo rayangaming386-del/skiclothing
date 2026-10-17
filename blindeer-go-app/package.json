@@ -1,0 +1,48 @@
+{
+  "name": "blindeer-go-app",
+  "version": "1.0.0",
+  "main": "expo-router/entry",
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "@supabase/supabase-js": "^2.118.0",
+    "@tanstack/react-query": "^5.104.3",
+    "aes-js": "^3.1.2",
+    "expo": "~58.0.14",
+    "expo-constants": "~58.0.12",
+    "expo-crypto": "~58.0.7",
+    "expo-haptics": "~58.0.7",
+    "expo-image-picker": "~58.0.10",
+    "expo-linking": "~58.0.13",
+    "expo-network": "~58.0.3",
+    "expo-router": "~58.0.23",
+    "expo-secure-store": "~58.0.2",
+    "expo-status-bar": "~58.0.3",
+    "expo-updates": "~58.0.17",
+    "luxon": "^3.7.2",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-native": "0.88.0",
+    "react-native-gesture-handler": "~3.3.0",
+    "react-native-safe-area-context": "~5.10.1",
+    "react-native-screens": "~4.30.0",
+    "react-native-url-polyfill": "^4.0.0",
+    "react-native-web": "~0.21.4"
+  },
+  "devDependencies": {
+    "@types/aes-js": "^3.1.4",
+    "@types/luxon": "^3.7.6",
+    "@types/react": "~19.3.0",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.5"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "test": "TZ=America/New_York vitest run",
+    "typecheck": "tsc --noEmit",
+    "test:db": "./supabase/tests/run_db_tests.sh"
+  },
+  "private": true
+}

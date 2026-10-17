@@ -1,0 +1,3 @@
+-- Alleen voor LOKALE ontwikkeling (`supabase db reset`). Wordt nooit naar productie gepusht.
+-- Echte bedrijfsinstellingen staan in migrations/20261017000400_seed_business_data.sql.
+-- Demo-afspraken worden bewust niet aangemaakt; maak lokaal testaccounts aan via Studio (Authentication → Add user).
