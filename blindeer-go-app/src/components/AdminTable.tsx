@@ -2,7 +2,7 @@
 // Schrijfrechten worden door de database (RLS) afgedwongen; hier alleen verborgen voor de duidelijkheid.
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useMemo, useState } from 'react';
-import { Alert, Modal, Pressable, Switch, Text, View } from 'react-native';
+import { Modal, Pressable, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { toFriendlyError } from '../lib/errors';
 import { BODY_TYPES } from '../lib/pricing';
@@ -12,6 +12,7 @@ import { formatDateTime, inZone, localToUtcIso, WEEKDAYS } from '../lib/time';
 import { centsToInput, isTime, parseEuroToCents } from '../lib/validation';
 import { colors, space } from '../theme';
 import { Button, Card, Chip, ChipRow, Empty, ErrorState, Field, Loading, Notice, Screen, styles as ui, T, useToast } from './ui';
+import { Alert } from './Dialog';
 
 export type FieldType =
   | 'text'

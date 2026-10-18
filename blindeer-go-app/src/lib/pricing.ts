@@ -27,6 +27,7 @@ export interface VehicleInput {
 
 export interface Service {
   id: string;
+  code?: string | null;
   name: string;
   active: boolean;
   is_windshield: boolean;
@@ -75,6 +76,7 @@ export interface Bundle {
   make: string | null;
   match_terms: string[];
   body_type: BodyType | null;
+  rear_window_count?: number | null;
   price_cents: number | null;
   duration_min: number | null;
   active: boolean;
@@ -85,6 +87,8 @@ export interface DiscountRule {
   name: string;
   target_service_id: string;
   required_any_service_ids: string[];
+  /** Geldt bij elke combinatie: doeldienst plus minimaal één andere behandeling. */
+  requires_any_other?: boolean;
   body_types: BodyType[] | null;
   amount_cents: number;
   active: boolean;
@@ -318,15 +322,29 @@ export function computeQuote(
     return line;
   });
 
-  // Pakketten
+  // Pakketten: het best passende actieve pakket (meeste diensten, daarna meest specifiek) wordt toegepast.
   let bundle: Quote['bundle'] = null;
-  for (const b of catalog.bundles) {
-    if (!b.active || !b.service_ids.every((id) => selectedIds.has(id))) continue;
-    const hasVehicleFilter = !!(b.make || b.match_terms.length || b.body_type);
-    if (hasVehicleFilter && !vehicleMatchesFilter(vehicle, b)) continue;
+  const candidates = catalog.bundles
+    .filter((b) => b.active && b.service_ids.every((id) => selectedIds.has(id)))
+    .filter((b) => vehicleMatchesFilter(vehicle, { ...b, match_terms: b.match_terms ?? [] }))
+    .filter((b) => b.rear_window_count == null || vehicle.rear_window_count === b.rear_window_count)
+    .map((b) => ({
+      b,
+      modelSpecific: !!(b.make || (b.match_terms ?? []).length),
+      score:
+        b.service_ids.length * 100 +
+        (b.make ? 10 : 0) +
+        ((b.match_terms ?? []).length ? 10 : 0) +
+        (b.body_type ? 5 : 0) +
+        (b.rear_window_count != null ? 5 : 0) +
+        (b.price_cents != null ? 1 : 0),
+    }))
+    .sort((x, y) => y.score - x.score);
+  for (const { b, modelSpecific } of candidates) {
     const parts = lines.filter((l) => b.service_ids.includes(l.serviceId));
-    if (!hasVehicleFilter && parts.some((l) => l.exceptionId)) {
-      warnings.push(`Pakket "${b.name}" niet toegepast vanwege een modeluitzondering; duur is opgeteld.`);
+    // Een standaardpakket geldt niet automatisch voor een uitzonderingsmodel (bv. Golf 5): dan losse prijzen/duren.
+    if (!modelSpecific && parts.some((l) => l.exceptionId)) {
+      warnings.push(`Pakket "${b.name}" niet toegepast vanwege een modeluitzondering; prijs en duur zijn per onderdeel berekend.`);
       continue;
     }
     bundle = { id: b.id, name: b.name, priceCents: b.price_cents, durationMin: b.duration_min };
@@ -336,7 +354,9 @@ export function computeQuote(
       if (b.price_cents != null) {
         l.standardPriceCents = i === 0 ? b.price_cents : 0;
         l.priceCents = l.standardPriceCents;
-        l.notes = l.notes.filter((n) => n !== 'Prijs op zicht.' && n !== 'Geen standaardprijs voor deze uitvoering.');
+        l.notes = l.notes.filter(
+          (n) => n !== 'Prijs op zicht.' && n !== 'Geen standaardprijs voor deze uitvoering.' && n !== 'Kies gewone of hoge instap voor de voorruitprijs.',
+        );
         if (i > 0) l.notes.push(`Inbegrepen in pakket "${b.name}".`);
       }
     });
@@ -360,8 +380,12 @@ export function computeQuote(
   for (const d of catalog.discounts) {
     if (!d.active || !selectedIds.has(d.target_service_id)) continue;
     if (d.required_any_service_ids.length && !d.required_any_service_ids.some((id) => id !== d.target_service_id && selectedIds.has(id))) continue;
+    if (d.requires_any_other && ![...selectedIds].some((id) => id !== d.target_service_id)) continue;
     if (d.body_types && (!vehicle.body_type || !d.body_types.includes(vehicle.body_type))) continue;
-    const target = lines.find((l) => l.serviceId === d.target_service_id && !l.discountRuleId);
+    // Geen extra korting op een onderdeel dat al in een pakketprijs zit.
+    const target = lines.find(
+      (l) => l.serviceId === d.target_service_id && !l.discountRuleId && !(bundle && l.bundleId === bundle.id && bundle.priceCents != null),
+    );
     if (!target || target.priceCents == null) continue;
     target.discountCents += Math.min(d.amount_cents, target.priceCents);
     target.discountLabel = d.name;

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="%LANG_ISO_CODE%">
+  <head>
+    <meta charset="utf-8" />
+    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>%WEB_TITLE%</title>
+    <meta name="description" content="Interne planning van Blindeer & Go — alleen voor het team." />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#0B0F14" />
+    <meta name="color-scheme" content="dark" />
+    <!-- Op het beginscherm als app (iPhone/iPad en Android) -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="B&G Planning" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" href="/icons/favicon-64.png" />
+    <style id="expo-reset">
+      html,
+      body {
+        height: 100%;
+        background-color: #0b0f14;
+      }
+      body {
+        overflow: hidden;
+        overscroll-behavior: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      #root {
+        display: flex;
+        height: 100%;
+        flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <noscript>Zet JavaScript aan om de planning te gebruiken.</noscript>
+    <div id="root"></div>
+  </body>
+</html>

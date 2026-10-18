@@ -63,6 +63,7 @@ export default function AppLayout() {
         <Stack.Screen name="account/meldingen" options={{ title: 'Meldingen' }} />
         <Stack.Screen name="beheer/team" options={{ title: 'Team & toegang' }} />
         <Stack.Screen name="beheer/tabel" options={{ title: 'Beheer' }} />
+        <Stack.Screen name="installeren" options={{ title: 'Op beginscherm zetten' }} />
       </Stack>
     </View>
   );

@@ -1,16 +1,17 @@
 # Architectuur, beveiliging en kosten
 
 ## Mobiele techniek
-**Expo (React Native) met TypeScript, Expo Router** (SDK 58, React Native 0.88).
-- Eén codebase levert een echte iOS-app én Android-app. Daarmee hoeft de platformkeuze niet te wachten op het antwoord of iedereen een iPhone heeft.
-- Builds, ondertekening en uploaden naar de App Store gebeuren in de cloud met **EAS Build / EAS Submit**; een Mac is niet verplicht.
-- Kleine updates (alleen JavaScript) kunnen met **EAS Update** zonder nieuwe App Store-review worden uitgerold; wijzigingen in native onderdelen vragen een nieuwe build.
+**Expo (React Native Web) met TypeScript, Expo Router**, gepubliceerd als **website** die op het beginscherm van
+iPhone en Android als app opent (webmanifest, eigen icoon, schermvullend). Geen App Store of Play Store nodig.
+Updates: na een push zet de hosting (Vercel) de nieuwe versie automatisch online; telefoons krijgen die bij het openen.
+Dezelfde code kan later alsnog als echte iOS/Android-app gebouwd worden (EAS), mocht dat ooit gewenst zijn.
 
 ## Authenticatie
 **Supabase Auth** (e-mail + wachtwoord).
 - Zelf registreren staat uit; accounts ontstaan alleen via een uitnodiging van de eigenaar (Edge Function `admin-users`, draait op de server met de service-role-sleutel).
 - Uitnodiging, wachtwoordherstel, e-mailwijziging en her-authenticatie werken met **6-cijferige codes** per e-mail. Dat werkt op elke telefoon, zonder afhankelijkheid van links die de mail-app wel of niet in de app opent.
-- Sessie: korte access-token (1 uur) + refresh-token. Op het toestel **versleuteld** opgeslagen (AES-256; sleutel in iOS Keychain / Android Keystore via SecureStore).
+- Sessie: korte access-token (1 uur) + refresh-token. In de website-versie bewaard in de browseropslag van het toestel; uitloggen wist alles. (In een eventuele native app versleuteld via Keychain/Keystore.)
+- Inloggen met gebruikersnaam: de app zoekt via `login_email_for` het bijbehorende e-mailadres op (alleen voor actieve accounts) en logt daarmee in.
 - Wachtwoord wijzigen: eerst huidig wachtwoord opnieuw controleren; eist de server extra bevestiging, dan vraagt de app een code.
 - E-mail wijzigen: wachtwoord opnieuw invoeren; nieuw adres pas actief na bevestiging (oud en nieuw adres).
 - Uitloggen wist de sessie en alle in het geheugen geladen gegevens. Er wordt geen planning offline op het toestel bewaard.
@@ -61,10 +62,7 @@ Alles wordt als UTC opgeslagen en weergegeven in `Europe/Amsterdam` (instelbaar)
 ## Externe accounts en terugkerende kosten (indicatief — controleer actuele prijzen)
 | Dienst | Waarvoor | Kosten |
 |---|---|---|
-| Apple Developer Program | TestFlight en App Store | ca. $99 / jaar |
-| Google Play Console (alleen als Android nodig is) | Play Store | eenmalig ca. $25 |
-| Supabase | database, auth, realtime, opslag | Free (geen back-ups, pauzeert bij inactiviteit) of **Pro ca. $25 / maand** (aanbevolen) |
-| Expo / EAS | cloud-builds en updates | gratis tier met beperkt aantal builds per maand; betaald vanaf ca. $19 / maand bij meer gebruik |
-| E-mailverzending (SMTP) | uitnodigingen, codes | vaak gratis tot enkele duizenden mails/maand |
-
-Bronnen gebruikt bij het opstellen (oktober 2026, derden — controleer de officiële pagina's): Supabase-prijzen o.a. via schematichq.com/blog/supabase-pricing; Apple: developer.apple.com/support/unlisted-app-distribution.
+| Supabase | database, inloggen, live bijwerken, foto-opslag | Free, of **Pro ± $25 / maand** (aanbevolen: dagelijkse back-ups) |
+| Vercel (of Netlify / Cloudflare Pages) | de website hosten | gratis abonnement volstaat |
+| Gmail (rayanattalhaoui123@gmail.com) via app-wachtwoord | e-mails met codes | gratis (limiet ± 500 mails/dag) |
+| Eigen domein (optioneel) | bv. planning.jouwdomein.nl | ± €10–15 / jaar |

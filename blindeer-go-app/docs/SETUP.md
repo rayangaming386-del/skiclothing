@@ -1,118 +1,100 @@
-# Inrichten: van nul naar werkende app
+# Online zetten: van nul naar werkende website-app
 
-Deze stappen voer je één keer uit. Benodigd: een computer met Node.js 20+ en een terminal.
-Niets hiervan heb ik (Claude) voor je kunnen uitvoeren: er is nog geen Supabase-project, Apple- of Expo-account gekoppeld.
+De planning draait als **website** die je op de telefoon op het beginscherm zet (geen App Store of Play Store nodig).
+Je hebt twee gratis/goedkope diensten nodig: **Supabase** (database + inloggen) en **Vercel** (de website zelf).
+Reken op ongeveer een uur. Nog niets hiervan is al gedaan: er bestaat nog geen Supabase-project of website.
 
-## 1. Supabase-project aanmaken
+Benodigd op je computer: [Node.js 20 of nieuwer](https://nodejs.org) en een terminal.
 
-1. Maak een account op supabase.com en een **nieuw project**. Kies regio **EU (Frankfurt of Amsterdam/Londen)** — klantgegevens blijven dan in Europa.
-2. Bewaar het databasewachtwoord in een wachtwoordmanager.
-3. Advies: kies het **Pro-abonnement** zodra je echt gaat werken (dagelijkse back-ups, geen pauze bij inactiviteit). Zie ARCHITECTUUR.md → Kosten.
+---
 
-## 2. Database inrichten (migraties)
+## Stap 1 — Supabase-project (database en accounts)
 
-Met de Supabase CLI (aanbevolen):
+1. Maak een account op **supabase.com** → **New project**.
+   - Naam: `blindeer-go-planning`, regio **Europe (Frankfurt)**, kies en bewaar een sterk databasewachtwoord.
+   - Abonnement: Free werkt; **Pro (± $25/maand)** wordt aangeraden voor dagelijkse back-ups.
+2. Ga naar **Project Settings → API** en noteer:
+   - **Project URL** (`https://xxxx.supabase.co`)
+   - **anon / publishable key** (mag in de website)
+   - **service_role / secret key** (geheim! alleen voor stap 4, nooit delen of in de website zetten)
+
+## Stap 2 — Database inrichten
+
+In een terminal, in de map `blindeer-go-app`:
 
 ```bash
+npm install
 npx supabase login
-npx supabase link --project-ref <project-ref>      # te vinden in de project-URL
-npx supabase db push                               # voert supabase/migrations/* uit
+npx supabase link --project-ref <xxxx>      # het deel tussen https:// en .supabase.co
+npx supabase db push                        # voert alle bestanden in supabase/migrations uit
+npx supabase functions deploy admin-users   # teambeheer (uitnodigen, uitschakelen)
 ```
 
-Alternatief zonder CLI: open in het dashboard **SQL Editor** en voer de bestanden in `supabase/migrations/` uit, in volgorde van bestandsnaam.
+Daarmee staan klaar: alle tabellen met beveiliging, de boekingsregels, jullie prijzen (incl. compleet-pakketten en
+€10 combinatiekorting), openingstijden, pauzes (ma–za), werkplek Binckhorst en capaciteit 1 auto tegelijk.
 
-De migraties maken:
-- alle tabellen, met **Row Level Security** op elke tabel;
-- de serverfuncties `save_appointment`, `set_appointment_status`, `available_starts`, `booking_problems`, `admin_update_member`;
-- de startgegevens uit de briefing (bedrijfsgegevens, openingstijden, pauzes, partijen, diensten, prijzen, tijden, uitzonderingen). Niet-bevestigde onderdelen (Tesla-pakketten, combinatiekorting) staan **inactief**;
-- privé-opslag (buckets) voor afspraakfoto's en profielfoto's;
-- Realtime voor de planningtabellen.
+## Stap 3 — Inloggen en e-mail instellen (Supabase-dashboard)
 
-`supabase/seed.sql` bevat bewust géén demo-afspraken; echte planning en eventuele testgegevens blijven zo gescheiden.
-Advies: gebruik een **apart tweede Supabase-project** als test-/demo-omgeving.
+**Authentication → Sign In / Providers → Email**
+- *Allow new users to sign up*: **uit** (alleen jullie accounts)
+- *Confirm email*: aan · *Secure email change*: aan · *Secure password change*: aan
+- Minimale wachtwoordlengte: **10**
 
-## 3. Authenticatie instellen (dashboard → Authentication)
+**Authentication → Emails → SMTP Settings** (verzenden vanaf `rayanattalhaoui123@gmail.com`)
+1. Zet op dat Google-account **2-stapsverificatie** aan.
+2. Maak bij Google → Beveiliging → **App-wachtwoorden** een app-wachtwoord aan (16 tekens).
+3. Vul in Supabase in: Host `smtp.gmail.com`, Port `587`, Username `rayanattalhaoui123@gmail.com`,
+   Password = het app-wachtwoord, Sender email `rayanattalhaoui123@gmail.com`, Sender name `Blindeer & Go Planning`.
 
-| Instelling | Waarde | Waarom |
-|---|---|---|
-| Sign In / Providers → Email → **Allow new users to sign up** | **Uit** | Alleen uitgenodigde accounts |
-| Email → **Confirm email** | Aan | |
-| Email → **Secure email change** | Aan | Nieuw adres pas actief na bevestiging van oud én nieuw adres |
-| Email → **Secure password change** | Aan | Opnieuw verifiëren bij wachtwoordwijziging |
-| Email → OTP length / expiry | 6 cijfers / 3600 s | Codes in de e-mails |
-| Password → minimum length | 10, letters + cijfers | Komt overeen met de app |
-| URL Configuration → Site URL | `blindeergo://auth` | App-schema |
-| Anonymous sign-ins | Uit | |
+**Authentication → Emails → Templates**: plak de inhoud van de bestanden in `supabase/templates/`
+(Invite → `invite.html`, Reset password → `recovery.html`, Change email → `email_change.html`,
+Reauthentication → `reauthentication.html`). Die mails bevatten een code die je in de app invult.
 
-Dezelfde instellingen staan in `supabase/config.toml`; met `npx supabase config push` kun je (een deel ervan) naar het project sturen. Controleer daarna altijd in het dashboard.
-
-### E-mailtemplates (belangrijk)
-De app werkt met **6-cijferige codes** (geen links die in de mail-app openen). Zet onder **Authentication → Emails → Templates** de inhoud van:
-
-| Template | Bestand |
-|---|---|
-| Invite user | `supabase/templates/invite.html` |
-| Reset password | `supabase/templates/recovery.html` |
-| Change email address | `supabase/templates/email_change.html` |
-| Reauthentication | `supabase/templates/reauthentication.html` |
-| Magic link | `supabase/templates/magic_link.html` |
-
-### Eigen e-mailverzending (SMTP)
-De ingebouwde e-mail van Supabase is alleen voor testen (zeer lage limiet). Stel onder **Authentication → Emails → SMTP Settings** een eigen verzender in (bijv. Postmark, Resend, Brevo of het mailaccount van je domein). Afzender: een adres dat jij beheert. Dit adres heb ik niet ingevuld omdat het niet in de briefing staat.
-
-## 4. Edge Function voor teambeheer uitrollen
+## Stap 4 — Accounts aanmaken (BlindeerReus, ProTintMaster, TintserviceNL)
 
 ```bash
-npx supabase functions deploy admin-users
+SUPABASE_URL=https://<xxxx>.supabase.co \
+SUPABASE_SERVICE_ROLE_KEY=<service_role-key> \
+SUPABASE_ANON_KEY=<anon-key> \
+node scripts/accounts-aanmaken.mjs
 ```
 
-De functie gebruikt automatisch `SUPABASE_URL`, `SUPABASE_ANON_KEY` en `SUPABASE_SERVICE_ROLE_KEY` die Supabase zelf aan functies meegeeft. De **service-role-sleutel staat dus alleen op de server**, nooit in de app of in git.
+Het script vraagt per account het e-mailadres en het wachtwoord (die staan bewust niet in de code), maakt het account aan
+en controleert meteen of inloggen met de gebruikersnaam werkt:
 
-## 5. App koppelen
+| Gebruikersnaam | Naam in de app | Rol | Partij |
+|---|---|---|---|
+| BlindeerReus | BlindeerReus | Eigenaar | Blindeer & Go |
+| ProTintMaster | Pro TintMaster | Collega | Pro TintMaster |
+| TintserviceNL | TintserviceNL | Collega | TintserviceNL |
 
-```bash
-cp .env.example .env
-```
-Vul in vanuit **Project Settings → API**:
-- `EXPO_PUBLIC_SUPABASE_URL`
-- `EXPO_PUBLIC_SUPABASE_ANON_KEY` (de *anon/publishable* sleutel — die mag in de app; de database beschermt zich via RLS)
+Inloggen kan daarna met de **gebruikersnaam óf het e-mailadres** (hoofdletters maken niet uit).
+Script nogmaals draaien = wachtwoorden bijwerken; er ontstaan geen dubbele accounts.
+Later meer collega's? In de app: **Meer → Team & toegang → Collega uitnodigen** (met gebruikersnaam).
 
-Voor EAS-builds zet je dezelfde twee waarden als **EAS environment variables** (omgevingen `preview` en `production`):
-```bash
-npx eas-cli@latest env:create --environment preview --name EXPO_PUBLIC_SUPABASE_URL --value https://<ref>.supabase.co --visibility plaintext
-npx eas-cli@latest env:create --environment preview --name EXPO_PUBLIC_SUPABASE_ANON_KEY --value <anon-key> --visibility plaintext
-# en hetzelfde voor --environment production
-```
+## Stap 5 — Website online zetten (Vercel, gratis)
 
-## 6. Jezelf als eerste beheerder aanmaken
+1. Maak een account op **vercel.com** en kies **Add New → Project → Import Git Repository** → kies de repo met deze app.
+2. **Root Directory**: `blindeer-go-app`. Build-instellingen komen uit `vercel.json` (niets aanpassen).
+   De app staat in de StrakWerk-repo op de branch **`claude/blindeer-go-planner`** (zodat de StrakWerk-website op `main`
+   ongemoeid blijft): zet in Vercel → Settings → Git de **Production Branch** op die branch.
+3. **Environment Variables**:
+   - `EXPO_PUBLIC_SUPABASE_URL` = je Project URL
+   - `EXPO_PUBLIC_SUPABASE_ANON_KEY` = je anon key
+4. **Deploy**. Je krijgt een adres zoals `blindeer-go-planning.vercel.app` (een eigen domein kan later via Vercel → Domains).
+5. Zet in Supabase → **Authentication → URL Configuration → Site URL** dat adres.
 
-1. Dashboard → **Authentication → Users → Add user → Send invitation**, met jouw e-mailadres.
-2. Dashboard → **SQL Editor**, voer uit (met jouw adres):
-   ```sql
-   select public.promote_to_owner('jouw@emailadres.nl');
-   update public.profiles
-      set display_name = 'Rayan — Blindeer & Go',
-          team_id = (select id from public.teams where name = 'Blindeer & Go')
-    where email = 'jouw@emailadres.nl';
-   ```
-3. Open de app → **"Uitnodiging ontvangen? Account activeren"** → vul je e-mailadres en de code uit de mail in → kies je wachtwoord.
+Netlify of Cloudflare Pages kan ook (`netlify.toml` en `public/_redirects` staan klaar; build `npx expo export --platform web`, map `dist`).
 
-`promote_to_owner` kan alleen vanuit de SQL Editor (of met de service-role) worden uitgevoerd; via de app kan niemand zichzelf eigenaar maken.
+Elke wijziging die naar de gekoppelde branch wordt gepusht, zet Vercel automatisch online.
 
-## 7. Pro TintMaster en TintserviceNL uitnodigen
+## Stap 6 — Op de telefoon zetten
 
-In de app: **Meer → Team & toegang → Collega uitnodigen**. Vul het e-mailadres, de weergavenaam (bijv. "Pro TintMaster"), rol **Collega** en de uitvoerende partij in.
-De collega:
-1. installeert de app (TestFlight of App Store, zie TESTEN.md / APP-STORE.md);
-2. kiest **"Uitnodiging ontvangen? Account activeren"**;
-3. vult e-mailadres + code in en kiest een eigen wachtwoord.
+- **iPhone**: open het adres in **Safari** → Deel-knop → **Zet op beginscherm** → Voeg toe.
+- **Android**: open in **Chrome** → ⋮ → **Toevoegen aan startscherm / App installeren**.
+- Open daarna de app via het icoon en log één keer in. In de app staat dit ook uitgelegd (Meer → Op beginscherm zetten).
 
-Code verlopen? Kies bij het teamlid **"Uitnodiging opnieuw sturen"**. Wachtwoord kwijt? **"Wachtwoordherstel sturen"** of de collega gebruikt zelf "Wachtwoord vergeten?".
+## Stap 7 — Controleren
 
-## 8. Bedrijfsinstellingen controleren
-
-In de app onder **Meer → Beheer**:
-- **Bedrijfsgegevens & regels**: stel vooral **Max. auto's tegelijk** in (staat voorzichtig op 1) en beslis over de buffer vóór sluiting.
-- **Pauzes**: bepaal of de pauze 12:00–13:00 ook op zondag geldt.
-- **Werkplekken**: optioneel aanmaken.
-- **Kortingsregels / Pakketten**: activeren na bevestiging (zie OPEN-PUNTEN.md).
+Log in als BlindeerReus en kijk bij **Meer → Bedrijfsgegevens & regels**, **Openingstijden**, **Pauzes**,
+**Pakketten** en **Kortingsregels** of alles klopt. Maak een test-afspraak, controleer dat een collega hem ziet en annuleer hem.

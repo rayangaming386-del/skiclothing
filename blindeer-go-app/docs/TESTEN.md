@@ -4,11 +4,11 @@
 
 | Test | Commando | Resultaat bij oplevering |
 |---|---|---|
-| Prijs-, duur- en tijdzonelogica (gebruikt de echte startgegevens uit de migratie) | `npm test` | 45/45 geslaagd |
+| Prijs-, duur- en tijdzonelogica (gebruikt de echte startgegevens uit de migraties) | `npm test` | 63/63 geslaagd |
 | Typecontrole | `npx tsc --noEmit` | geen fouten |
-| Database: rechten eigenaar/collega/anoniem, uitschakelen, boekingsregels, pauzes, buffers, capaciteit, blokkades, afwijkende dagen, tijdzone/zomer-wintertijd, versieconflict, idempotentie, annuleren | `sudo -u postgres ./supabase/tests/run_db_tests.sh` | alle ~60 controles geslaagd |
+| Database: rechten eigenaar/collega/anoniem, uitschakelen, boekingsregels, pauzes, buffers, capaciteit, blokkades, afwijkende dagen, tijdzone/zomer-wintertijd, versieconflict, idempotentie, annuleren | `sudo -u postgres ./supabase/tests/run_db_tests.sh` | 103 controles geslaagd |
 | Gelijktijdig boeken (8 parallelle databasesessies, capaciteit 1) | onderdeel van bovenstaande | 1 geaccepteerd, 7 geweigerd (zonder lock: 8 geaccepteerd — de test is dus zinvol) |
-| End-to-end met echte **Supabase Auth v2.186** + PostgREST + Edge Function + mail-opvang | zie hieronder | 39/39 geslaagd |
+| End-to-end met echte **Supabase Auth v2.186** + PostgREST + Edge Function + mail-opvang | zie hieronder | 47/47 geslaagd |
 | iOS-, Android- en web-bundel bouwen | `npx expo export --platform ios` | geslaagd |
 | App doorgeklikt in Chromium (telefoonformaat, tijdzone New York) | Playwright | inloggen → klant → auto → behandeling → planning → opslaan → agenda/account/team: geslaagd, tijden in NL-tijd |
 
@@ -30,23 +30,12 @@ node --experimental-strip-types supabase/tests/e2e/e2e.test.mjs
 
 ## 2. Op echte telefoons testen
 
-### Snel tijdens ontwikkeling (Expo Go)
-Alle gebruikte native modules zitten in Expo Go. Installeer **Expo Go** op de telefoon, start `npx expo start` op je computer en scan de QR-code. Werkt alleen als de Expo Go-versie SDK 58 ondersteunt; anders gebruik je een build (hieronder).
-
-### iPhone: TestFlight (aanbevolen voor jullie drieën)
-1. Apple Developer Program-lidmaatschap (zie APP-STORE.md).
-2. `npx eas-cli@latest login` en `npx eas-cli@latest init` (koppelt het project aan Expo).
-3. `npx eas-cli@latest update:configure` (voor updates zonder nieuwe build).
-4. `npx eas-cli@latest build --platform ios --profile production` — EAS maakt certificaten en profielen aan.
-5. `npx eas-cli@latest submit --platform ios` — upload naar App Store Connect.
-6. App Store Connect → TestFlight → voeg jezelf en collega's toe als testers (interne testers: geen review nodig; externe testers: korte beta-review).
-7. Testers installeren **TestFlight** en de app.
-
-### Android
-`npx eas-cli@latest build --platform android --profile preview` levert een installeerbaar APK/AAB-bestand met een downloadlink (interne distributie), zonder Play Store.
+Zet de website online (docs/SETUP.md stap 5), open het adres op elke telefoon en zet hem op het beginscherm
+(iPhone: Safari → Deel → Zet op beginscherm; Android: Chrome → ⋮ → Toevoegen aan startscherm).
 
 ### Testchecklist op de telefoon
-- [ ] Inloggen, app sluiten en heropenen: nog ingelogd.
+- [ ] Inloggen met gebruikersnaam (bv. BlindeerReus), app sluiten en heropenen: nog ingelogd.
+- [ ] Overzicht: week/maand/jaar/alles tonen het juiste aantal auto's.
 - [ ] Uitnodiging accepteren met code (op de telefoon van de collega).
 - [ ] Wachtwoord vergeten → code → nieuw wachtwoord.
 - [ ] Afspraak maken op telefoon A → verschijnt binnen enkele seconden op telefoon B zonder verversen (**Realtime**).

@@ -1,13 +1,13 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert } from 'react-native';
 import { Button, Loading, Notice, Screen, useToast } from '../../../components/ui';
 import { draftToRow, emptyVehicle, rowToDraft, VehicleDraft, VehicleForm } from '../../../components/VehicleForm';
 import { toFriendlyError } from '../../../lib/errors';
 import { qk, useCustomer } from '../../../lib/queries';
 import { supabase } from '../../../lib/supabase';
 import { space } from '../../../theme';
+import { Alert } from '../../../components/Dialog';
 
 export default function EditVehicle() {
   const { customerId, id } = useLocalSearchParams<{ customerId: string; id?: string }>();

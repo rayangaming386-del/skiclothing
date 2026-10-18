@@ -1,75 +1,59 @@
 # Blindeer & Go Planning
 
-Interne mobiele planning-app voor Blindeer & Go, Pro TintMaster en TintserviceNL.
-Iedereen heeft een eigen account en werkt in één gedeelde, actuele planning.
+Interne planning voor Blindeer & Go, Pro TintMaster en TintserviceNL: één gedeelde agenda, eigen accounts, werkt als
+**website-app op het beginscherm** van iPhone en Android (geen App Store nodig).
 
-- **App:** Expo (React Native, TypeScript). Eén codebase voor iPhone (eerste prioriteit) en Android.
-- **Backend:** Supabase: PostgreSQL-database, Auth (accounts), Realtime (live bijwerken), Storage (foto's) en een Edge Function voor teambeheer.
-- **Taal/tijd:** Nederlands, euro, alle tijden in de bedrijfstijd `Europe/Amsterdam`, met zomer- en wintertijd.
+- **Techniek:** Expo / React Native Web (TypeScript) + Supabase (database, inloggen, live bijwerken, foto-opslag).
+- **Taal/tijd:** Nederlands, euro, alle tijden in Nederlandse tijd (`Europe/Amsterdam`), zomer-/wintertijd inbegrepen.
+- **Online zetten:** zie **[docs/SETUP.md](docs/SETUP.md)** (Supabase + Vercel, ±1 uur).
 
-## Wat zit erin
+## Wat de app kan
 
-| Onderdeel | Status |
-|---|---|
-| Inloggen, uitloggen, ingelogd blijven (versleutelde sessie op het toestel) | ✅ gebouwd en end-to-end getest |
-| Wachtwoord vergeten (code per e-mail) | ✅ getest |
-| Eigen wachtwoord wijzigen (opnieuw verifiëren), eigen e-mailadres wijzigen (pas actief na bevestiging) | ✅ getest |
-| Profielnaam, telefoon, profielfoto, meldingsvoorkeuren, "Mijn account" | ✅ gebouwd (foto-opslag niet lokaal getest, zie hieronder) |
-| Uitloggen op andere apparaten | ✅ getest |
-| Eigenaar: collega's uitnodigen, rollen/partij instellen, (de)activeren, herstelmail sturen | ✅ getest |
-| Uitgeschakeld account verliest direct toegang (ook met lopende sessie) | ✅ getest |
-| Rechten afgedwongen in de database (RLS + serverfuncties) | ✅ getest |
-| Vandaag-scherm, agenda (dag/week/maand), filters op partij en status | ✅ gebouwd, in browser doorgeklikt |
-| Afspraak aanmaken: klant → auto → behandeling(en) → planning → controle | ✅ in browser doorgeklikt |
-| Prijs- en duurberekening (carrosserie, ramen, instap, modeluitzonderingen, pakketten, kortingen, handmatige afwijking, "nog te bepalen") | ✅ 45 unit-tests |
-| Server-side boekingscontrole: openingstijden, pauzes, buffer, afwijkende dagen, blokkades, afwezigheid, capaciteit (bedrijf, partij, werkplek, medewerker) | ✅ ~60 databasetests |
-| Gelijktijdig boeken: precies één boeking slaagt | ✅ getest (8 parallelle sessies en via de API) |
-| Gelijktijdige wijziging: geen stil overschrijven (versiecontrole) | ✅ getest |
-| Dubbel tikken op opslaan maakt geen dubbele afspraak | ✅ getest |
-| Verplaatsen, status wijzigen, annuleren (blijft bewaard), wijzigingshistorie | ✅ getest |
-| Bellen en WhatsApp (conceptbericht, nooit automatisch verzonden) | ✅ gebouwd |
-| Klantenoverzicht met zoeken op naam/telefoon/kenteken, meerdere auto's, eerdere/komende afspraken | ✅ gebouwd |
-| Beheeromgeving zonder code: bedrijfsgegevens, openingstijden, pauzes, afwijkende dagen, blokkades, werkplekken, partijen/kleuren, diensten, folies, prijzen, tijden, modeluitzonderingen, pakketten, kortingen | ✅ gebouwd |
-| Live bijwerken bij collega's (Realtime) | ✅ gebouwd, **nog niet getest** (geen Realtime-server in de testomgeving) — als vangnet ververst de app ook bij terugkeer in beeld/na herverbinden |
-| Melding bij geen verbinding; niets wordt als "opgeslagen" getoond tenzij de server het bevestigt | ✅ getest |
-| Pushmeldingen, betaalstatus, export, kentekenlookup | ⏳ volgende fase (voorkeuren worden al bewaard) |
+**Plannen**
+- *Vandaag*: datum, eerstvolgende afspraak, aantallen vandaag / deze week / deze maand, grote knop "Afspraak toevoegen".
+- *Afspraak maken op één scherm*: klant → auto → behandeling → wanneer & wie. Blokken klappen dicht met een samenvatting;
+  onderaan staan altijd prijs, tijd en "Opslaan". Snelkeuzes: **Compleet + kameleon**, **Compleet + zwarte voorruit**,
+  B-stijl + voorportieren, B-stijl + kameleon. Eigen partij en werkplek Binckhorst staan standaard ingevuld.
+- Alleen echt vrije starttijden worden getoond (openingstijden, pauzes, buffer, blokkades, 1 auto tegelijk).
+- *Agenda*: dag (met pauzes en blokkades), week en maand; filters op partij en status.
+- *Afspraak*: bewerken, verplaatsen, status, bellen, WhatsApp (concept), foto's, annuleren (blijft bewaard), volledige historie.
+- *Klanten*: zoeken op naam, telefoon of kenteken; meerdere auto's; eerdere en komende afspraken.
 
-## Snel starten (ontwikkelaar)
+**Overzicht** (nieuw)
+- Aantal auto's gepland per **week, maand, jaar en alles**, met afgerond / nog te komen / geannuleerd / niet verschenen.
+- Geplande en afgeronde omzet, per partij, per behandeling, staafdiagram per dag of maand.
+- Export naar Excel (CSV).
 
-```bash
-npm install
-cp .env.example .env          # vul je Supabase-URL en publieke (anon) sleutel in
-npx expo start                # scan de QR-code met Expo Go of een development build
-```
+**Prijzen** (automatisch, altijd handmatig aan te passen)
+- B-stijl per carrosserie en ramen, voorportieren, voorruit (gewone/hoge instap), modeluitzonderingen (Golf 5/6, Micra 2003, Peugeot 307).
+- Complete auto: hatchback €290/€280, sedan €320/€300, station 7 ramen €330, station 5 ramen €300.
+- €10 korting op voorportieren bij elke combinatie. Onbekende prijzen = "nog te bepalen", nooit €0.
 
-Alle stappen voor de eerste keer inrichten (Supabase-project, migraties, e-mail, eerste beheerder, uitnodigingen)
-staan in **[docs/SETUP.md](docs/SETUP.md)**.
+**Accounts en beveiliging**
+- Inloggen met **gebruikersnaam of e-mailadres**; wachtwoord vergeten, eigen wachtwoord en e-mailadres wijzigen (met code).
+- Eigenaar (BlindeerReus): collega's uitnodigen, rollen/partij/gebruikersnaam instellen, accounts uitschakelen, herstelmail sturen.
+- Rechten worden door de database afgedwongen; een uitgeschakeld account verliest direct toegang.
+- Gelijktijdig boeken kan nooit dubbel; gelijktijdige wijzigingen worden niet stil overschreven; dubbel tikken maakt geen dubbele afspraak.
 
-## Documentatie
+## Tests (allemaal geslaagd bij oplevering)
 
-- [docs/SETUP.md](docs/SETUP.md) — Supabase inrichten, eerste beheerder, collega's uitnodigen
-- [docs/ARCHITECTUUR.md](docs/ARCHITECTUUR.md) — techniek, beveiliging, synchronisatie, kosten, back-ups
-- [docs/TESTEN.md](docs/TESTEN.md) — geautomatiseerde tests en testen op echte telefoons
-- [docs/APP-STORE.md](docs/APP-STORE.md) — route naar TestFlight en App Store
-- [docs/OPEN-PUNTEN.md](docs/OPEN-PUNTEN.md) — nog af te stemmen bedrijfsregels
-
-## Tests
-
-```bash
-npm test                                   # prijs- en tijdzone-unit-tests (Vitest)
-npx tsc --noEmit                           # typecontrole
-sudo -u postgres ./supabase/tests/run_db_tests.sh   # database: rechten, boekingsregels, gelijktijdig boeken
-# End-to-end met echte Supabase Auth + PostgREST: zie docs/TESTEN.md
-```
+| Wat | Commando | Resultaat |
+|---|---|---|
+| Prijzen, pakketten, kortingen, tijdzone | `npm test` | 63/63 |
+| Typecontrole | `npx tsc --noEmit` | geen fouten |
+| Database: rechten, boekingsregels, pauzes, gebruikersnaam, overzicht, gelijktijdig boeken | `sudo -u postgres ./supabase/tests/run_db_tests.sh` | 103 controles |
+| End-to-end met echte Supabase Auth + database + Edge Function | zie docs/TESTEN.md | 47 controles |
+| Website doorgeklikt op telefoonformaat (inloggen met gebruikersnaam → compleet-afspraak → opslaan → status → overzicht → export → beheer → uitloggen) | Playwright | geslaagd, geen fouten |
 
 ## Mappen
 
 ```
 src/app/            schermen (Expo Router)
-src/components/     UI-componenten (o.a. generieke beheer-editor)
-src/lib/            Supabase-client, auth, queries, prijsberekening, tijd
-supabase/migrations database-inrichting (schema, rechten, boekingsregels, startgegevens, opslag)
-supabase/functions  Edge Function "admin-users" (teambeheer, draait op de server)
-supabase/templates  Nederlandse e-mailtemplates (code-gebaseerd)
-supabase/tests      database- en end-to-end-tests
+src/components/     UI-componenten
+src/lib/            Supabase-client, prijsberekening, tijd, overzicht/export
+public/             website: icoon, manifest (beginscherm), index.html
+supabase/migrations database-inrichting en bedrijfsregels
+supabase/functions  serverfunctie teambeheer
+scripts/            accounts aanmaken, back-up
+docs/               SETUP, ARCHITECTUUR, TESTEN, OPEN-PUNTEN
 ```

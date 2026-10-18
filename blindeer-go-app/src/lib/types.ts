@@ -65,6 +65,7 @@ export interface NotificationPrefs {
 export interface Profile {
   id: string;
   email: string | null;
+  username: string | null;
   display_name: string;
   phone: string | null;
   avatar_path: string | null;

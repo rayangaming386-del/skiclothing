@@ -1,8 +1,8 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
-import { Alert, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { TeamBadge } from '../../../components/planning';
-import { Button, Card, Chip, ChipRow, Empty, ErrorState, Field, Loading, Notice, Screen, Section, T, useToast } from '../../../components/ui';
+import { Button, Card, Chip, ChipRow, Empty, ErrorState, Field, Loading, Notice, PromptModal, Screen, Section, T, useToast } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth';
 import { toFriendlyError } from '../../../lib/errors';
 import { qk, useTeams } from '../../../lib/queries';
@@ -11,10 +11,12 @@ import { formatDateTime } from '../../../lib/time';
 import { Role } from '../../../lib/types';
 import { isEmail } from '../../../lib/validation';
 import { colors, space } from '../../../theme';
+import { Alert } from '../../../components/Dialog';
 
 interface Member {
   id: string;
   email: string | null;
+  username?: string | null;
   display_name: string;
   role: Role;
   team_id: string | null;
@@ -46,6 +48,7 @@ export default function TeamAdmin() {
   const toast = useToast();
   const [inviteOpen, setInviteOpen] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [usernameFor, setUsernameFor] = useState<Member | null>(null);
 
   const members = useQuery({
     queryKey: ['admin', 'members'],
@@ -85,7 +88,7 @@ export default function TeamAdmin() {
     }
   };
 
-  const updateMember = (m: Member, patch: { p_role?: Role; p_team_id?: string; p_clear_team?: boolean }) =>
+  const updateMember = (m: Member, patch: { p_role?: Role; p_team_id?: string; p_clear_team?: boolean; p_username?: string }) =>
     run(
       m.id,
       async () => {
@@ -135,7 +138,10 @@ export default function TeamAdmin() {
                 </Text>
                 <Text style={{ color: m.active ? colors.success : colors.danger, fontWeight: '700' }}>{m.active ? 'Actief' : 'Uitgeschakeld'}</Text>
               </View>
-              <T.Muted>{m.email}</T.Muted>
+              <T.Muted>
+                {m.username ? `Gebruikersnaam: ${m.username} · ` : ''}
+                {m.email}
+              </T.Muted>
               {m.pending_email ? <T.Muted>Nieuw adres wacht op bevestiging: {m.pending_email}</T.Muted> : null}
               {viaFunction ? (
                 <T.Muted style={{ fontSize: 13 }}>
@@ -146,7 +152,13 @@ export default function TeamAdmin() {
                 <TeamBadge team={teams.data?.find((t) => t.id === m.team_id)} small />
               </View>
 
-              <Text style={{ color: colors.textDim, fontSize: 13, marginTop: space.md, marginBottom: 4 }}>Rol</Text>
+              <Button
+                title={m.username ? 'Gebruikersnaam wijzigen' : 'Gebruikersnaam instellen'}
+                variant="ghost"
+                onPress={() => setUsernameFor(m)}
+                style={{ alignSelf: 'flex-start', paddingHorizontal: 0, minHeight: 36 }}
+              />
+              <Text style={{ color: colors.textDim, fontSize: 13, marginTop: space.sm, marginBottom: 4 }}>Rol</Text>
               <ChipRow>
                 <Chip label="Eigenaar" selected={m.role === 'owner'} onPress={() => m.role !== 'owner' && updateMember(m, { p_role: 'owner' })} disabled={busyId === m.id} />
                 <Chip label="Collega" selected={m.role === 'colleague'} onPress={() => m.role !== 'colleague' && updateMember(m, { p_role: 'colleague' })} disabled={busyId === m.id} />
@@ -173,6 +185,20 @@ export default function TeamAdmin() {
           );
         })}
       </Section>
+      <PromptModal
+        visible={!!usernameFor}
+        title="Gebruikersnaam"
+        message={`Waarmee ${usernameFor?.display_name ?? ''} inlogt (3–32 tekens: letters, cijfers, punt, streepje of underscore).`}
+        placeholder={usernameFor?.username ?? 'bv. ProTintMaster'}
+        confirmLabel="Opslaan"
+        required
+        onCancel={() => setUsernameFor(null)}
+        onConfirm={(value) => {
+          const m = usernameFor!;
+          setUsernameFor(null);
+          updateMember(m, { p_username: value });
+        }}
+      />
     </Screen>
   );
 }
@@ -182,6 +208,7 @@ function InviteForm({ onDone }: { onDone: () => void }) {
   const toast = useToast();
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [role, setRole] = useState<Role>('colleague');
   const [teamId, setTeamId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -190,10 +217,20 @@ function InviteForm({ onDone }: { onDone: () => void }) {
   const submit = async () => {
     if (!isEmail(email)) return setError('Vul een geldig e-mailadres in.');
     if (!name.trim()) return setError('Vul een naam in.');
+    if (username.trim() && !/^[A-Za-z0-9._-]{3,32}$/.test(username.trim())) {
+      return setError('Gebruikersnaam: 3–32 tekens, alleen letters, cijfers, punt, streepje of underscore.');
+    }
     setBusy(true);
     setError(null);
     try {
-      await adminCall({ action: 'invite', email: email.trim().toLowerCase(), display_name: name.trim(), role, team_id: teamId });
+      await adminCall({
+        action: 'invite',
+        email: email.trim().toLowerCase(),
+        display_name: name.trim(),
+        username: username.trim() || null,
+        role,
+        team_id: teamId,
+      });
       toast(`Uitnodiging verstuurd naar ${email.trim()}`);
       onDone();
     } catch (e) {
@@ -207,6 +244,7 @@ function InviteForm({ onDone }: { onDone: () => void }) {
     <Card style={{ marginTop: space.md }}>
       <Field label="E-mailadres" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
       <Field label="Weergavenaam" value={name} onChangeText={setName} placeholder="bv. Pro TintMaster" />
+      <Field label="Gebruikersnaam (om mee in te loggen)" value={username} onChangeText={setUsername} autoCapitalize="none" autoCorrect={false} placeholder="bv. ProTintMaster" />
       <Text style={{ color: colors.textDim, fontSize: 13, marginBottom: 4 }}>Rol</Text>
       <ChipRow>
         <Chip label="Collega" selected={role === 'colleague'} onPress={() => setRole('colleague')} />

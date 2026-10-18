@@ -3,7 +3,7 @@
 //
 // Acties (POST JSON { action, ... }):
 //   list                                  → teamleden met accountstatus
-//   invite { email, display_name, role, team_id? }
+//   invite { email, display_name, username?, role, team_id? }
 //   set_active { user_id, active }        → (de)activeren, incl. blokkeren van inloggen/vernieuwen
 //   send_password_reset { user_id }       → stuurt herstelmail met code
 //   resend_invite { user_id }             → nieuwe uitnodiging voor nog niet geactiveerd account
@@ -37,6 +37,7 @@ class HttpError extends Error {
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const USERNAME_RE = /^[A-Za-z0-9._-]{3,32}$/;
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
@@ -87,7 +88,7 @@ type Admin = SupabaseClient<any, any, any>;
 async function listMembers(admin: Admin) {
   const { data: profiles, error } = await admin
     .from('profiles')
-    .select('id, email, display_name, phone, role, team_id, active, created_at')
+    .select('id, email, username, display_name, phone, role, team_id, active, created_at')
     .order('created_at');
   if (error) throw error;
   const { data: users, error: usersErr } = await admin.auth.admin.listUsers({ perPage: 1000 });
@@ -113,8 +114,14 @@ async function invite(admin: Admin, body: Record<string, unknown>) {
   const displayName = String(body.display_name ?? '').trim();
   const role = body.role === 'owner' ? 'owner' : 'colleague';
   const teamId = typeof body.team_id === 'string' && body.team_id ? body.team_id : null;
+  const username = String(body.username ?? '').trim() || null;
   if (!EMAIL_RE.test(email)) throw new HttpError(400, 'Ongeldig e-mailadres');
   if (!displayName) throw new HttpError(400, 'Vul een naam in');
+  if (username) {
+    if (!USERNAME_RE.test(username)) throw new HttpError(400, 'Gebruikersnaam: 3–32 tekens, alleen letters, cijfers, punt, streepje of underscore');
+    const { count } = await admin.from('profiles').select('id', { count: 'exact', head: true }).ilike('username', username.replace(/[\\%_]/g, '\\$&'));
+    if (count) throw new HttpError(409, 'Deze gebruikersnaam is al in gebruik');
+  }
 
   const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
     data: { display_name: displayName },
@@ -128,10 +135,10 @@ async function invite(admin: Admin, body: Record<string, unknown>) {
   }
   const userId = data.user.id;
   // Rol en partij server-side vastleggen (app_metadata kan een gebruiker zelf niet wijzigen).
-  await admin.auth.admin.updateUserById(userId, { app_metadata: { role, team_id: teamId } });
+  await admin.auth.admin.updateUserById(userId, { app_metadata: { role, team_id: teamId, username } });
   const { error: profErr } = await admin
     .from('profiles')
-    .update({ role, team_id: teamId, display_name: displayName })
+    .update({ role, team_id: teamId, display_name: displayName, username })
     .eq('id', userId);
   if (profErr) throw profErr;
   return { user_id: userId };

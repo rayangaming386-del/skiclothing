@@ -42,7 +42,8 @@
     "web": "expo start --web",
     "test": "TZ=America/New_York vitest run",
     "typecheck": "tsc --noEmit",
-    "test:db": "./supabase/tests/run_db_tests.sh"
+    "test:db": "./supabase/tests/run_db_tests.sh",
+    "build:web": "expo export --platform web"
   },
   "private": true
 }

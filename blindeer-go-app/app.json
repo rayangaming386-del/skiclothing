@@ -30,7 +30,13 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "output": "single",
+      "bundler": "metro",
+      "lang": "nl",
+      "name": "Blindeer & Go Planning",
+      "shortName": "B&G Planning",
+      "backgroundColor": "#0B0F14",
+      "favicon": "./public/icons/favicon-64.png"
     },
     "plugins": [
       "expo-router",

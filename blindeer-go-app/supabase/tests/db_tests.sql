@@ -171,14 +171,15 @@ update public.company_settings set buffer_must_fit_before_close = false;
 -- ---------------------------------------------------------------------------
 set role authenticated;
 select t.login('00000000-0000-0000-0000-00000000000a');
-select t.expect_error($$select public.save_appointment(t.appt(gen_random_uuid(), '2026-10-25 12:00', 60))$$,
-                      '%pauze%', 'zondag 12:00 valt in pauze (open punt: zondagpauze)');
-insert into r select 'w1', public.save_appointment(t.appt('10000000-0000-0000-0000-000000000004', '2026-10-25 13:00', 60));
-select t.ok((select (v -> 'appointment' ->> 'starts_at')::timestamptz = '2026-10-25 12:00Z' from r where k = 'w1'),
-            'zondag 25-10 13:00 Nederlandse tijd = 12:00 UTC (wintertijd)');
-select t.ok((select min(x) = '2026-11-01 12:00Z' and max(x) = '2026-11-01 18:00Z' and count(*) = 18
+insert into r select 'w1', public.save_appointment(t.appt('10000000-0000-0000-0000-000000000004', '2026-10-25 12:00', 60));
+select t.ok((select (v -> 'appointment' ->> 'starts_at')::timestamptz = '2026-10-25 11:00Z' from r where k = 'w1'),
+            'zondag 25-10 12:00 (geen zondagpauze) = 11:00 UTC (wintertijd)');
+select t.ok((select min(x) = '2026-11-01 11:00Z' and max(x) = '2026-11-01 18:00Z' and count(*) = 29
              from public.available_starts('2026-11-01', 60) x),
-            'zondag: eerste start 13:00, laatste start 19:00 voor 60 min (18 opties)');
+            'zondag zonder pauzes: eerste start 12:00, laatste start 19:00 voor 60 min (29 opties)');
+select t.ok(not exists (select 1 from public.available_starts('2026-11-02', 60) x
+                        where (x at time zone 'Europe/Amsterdam')::time in ('11:30', '12:00', '12:30', '15:30', '16:00')),
+            'maandag: pauzes 12:00–13:00 en 16:00–17:00 blijven gelden');
 select t.ok((select max(x) = '2026-10-20 19:00Z' from public.available_starts('2026-10-20', 60) x),
             'dinsdag zomertijd: laatste start 21:00 = 19:00 UTC');
 select t.ok((select max(x) = '2026-11-03 20:00Z' from public.available_starts('2026-11-03', 60) x),
@@ -315,5 +316,85 @@ select public.admin_update_member('00000000-0000-0000-0000-00000000000c', p_acti
 select t.login('00000000-0000-0000-0000-00000000000c');
 select t.ok((select count(*) from public.appointments) > 0, 'heractiveerd account heeft weer toegang');
 reset role;
+
+
+-- ---------------------------------------------------------------------------
+-- Antwoorden 18-10: werkplek, korting, compleet-pakketten
+-- ---------------------------------------------------------------------------
+select t.ok((select count(*) = 1 from public.workstations where name = 'Binckhorst' and active), 'werkplek Binckhorst bestaat');
+select t.ok((select active and requires_any_other and body_types is null and amount_cents = 1000 from public.discount_rules where name = 'Combinatiekorting voorportieren'),
+            'combinatiekorting €10 actief bij elke combinatie');
+select t.ok((select count(*) = 8 from public.bundles where name like 'Compleet %' and active and duration_min = 150), '8 compleet-pakketten actief (150 min)');
+select t.ok((select price_cents = 29000 from public.bundles where name = 'Compleet hatchback met kameleon voorruit'), 'compleet hatchback kameleon €290');
+select t.ok((select price_cents = 28000 from public.bundles where name = 'Compleet hatchback met zwarte voorruit'), 'compleet hatchback zwart €280');
+select t.ok((select price_cents = 32000 from public.bundles where name = 'Compleet sedan met kameleon voorruit'), 'compleet sedan kameleon €320');
+select t.ok((select price_cents = 30000 from public.bundles where name = 'Compleet sedan met zwarte voorruit'), 'compleet sedan zwart €300');
+select t.ok((select bool_and(price_cents = 33000 and rear_window_count = 7) from public.bundles where name like 'Compleet station (7 ramen)%'), 'compleet station 7 ramen €330');
+select t.ok((select bool_and(price_cents = 30000 and rear_window_count = 5) from public.bundles where name like 'Compleet station (5 ramen)%'), 'compleet station 5 ramen €300');
+select t.ok((select not active from public.services where code = 'complete_auto'), 'losse dienst "complete auto" vervangen door pakketten');
+select t.ok((select count(*) = 12 from public.recurring_breaks where active and weekday between 1 and 6)
+            and not exists (select 1 from public.recurring_breaks where active and (weekday is null or weekday = 7)),
+            'pauzes alleen maandag t/m zaterdag');
+
+-- ---------------------------------------------------------------------------
+-- Gebruikersnaam
+-- ---------------------------------------------------------------------------
+set role authenticated;
+select t.login('00000000-0000-0000-0000-00000000000a');
+select public.admin_update_member('00000000-0000-0000-0000-00000000000a', p_username => 'BlindeerReus');
+select public.admin_update_member('00000000-0000-0000-0000-00000000000b', p_username => 'ProTintMaster');
+select t.expect_error($$select public.admin_update_member('00000000-0000-0000-0000-00000000000c', p_username => 'blindeerreus')$$,
+                      '%al in gebruik%', 'gebruikersnaam is uniek (hoofdletterongevoelig)');
+select t.expect_error($$select public.admin_update_member('00000000-0000-0000-0000-00000000000c', p_username => 'met spatie')$$,
+                      '%Gebruikersnaam%', 'ongeldige gebruikersnaam geweigerd');
+select t.login('00000000-0000-0000-0000-00000000000b');
+select t.expect_error($$update public.profiles set username = 'Baas' where id = auth.uid()$$, '%permission denied%', 'collega kan eigen gebruikersnaam niet zelf wijzigen');
+reset role;
+set role anon;
+select t.ok(public.login_email_for('blindeerreus') = 'eigenaar@test.invalid', 'inloggen met gebruikersnaam (hoofdletterongevoelig) vindt het account');
+select t.ok(public.login_email_for('  ProTintMaster ') = 'collega1@test.invalid', 'spaties rond gebruikersnaam genegeerd');
+select t.ok(public.login_email_for('bestaatniet') is null, 'onbekende gebruikersnaam geeft niets');
+reset role;
+update public.profiles set active = false where username = 'ProTintMaster';
+set role anon;
+select t.ok(public.login_email_for('ProTintMaster') is null, 'uitgeschakeld account niet te vinden via gebruikersnaam');
+reset role;
+update public.profiles set active = true where username = 'ProTintMaster';
+insert into auth.users (id, email, raw_user_meta_data, raw_app_meta_data) values
+  ('00000000-0000-0000-0000-00000000000d', 'nieuw@test.invalid', '{"display_name":"Nieuw"}', '{"role":"colleague","username":"Nieuweling"}');
+select t.ok((select username = 'Nieuweling' from public.profiles where id = '00000000-0000-0000-0000-00000000000d'), 'gebruikersnaam uit app_metadata bij aanmaken account');
+
+-- ---------------------------------------------------------------------------
+-- Overzicht / statistieken
+-- ---------------------------------------------------------------------------
+set role authenticated;
+select t.login('00000000-0000-0000-0000-00000000000b');
+create temp table s as select public.appointment_stats(null, null, 'month') v;
+select t.ok((select (v ->> 'planned')::int = (select count(*) from public.appointments where status in ('ingepland','bezig','afgerond'))
+                and (v ->> 'cancelled')::int = (select count(*) from public.appointments where status = 'geannuleerd')
+                and (v ->> 'completed')::int = (select count(*) from public.appointments where status = 'afgerond') from s),
+            'overzicht alle tijd: aantallen kloppen met de afspraken');
+select t.ok((select (v ->> 'revenue_planned_cents')::bigint = (select coalesce(sum(price_total_cents),0) from public.appointments
+                where status in ('ingepland','bezig','afgerond') and price_complete) from s), 'overzicht: geplande omzet klopt');
+select t.ok((select (select sum((b ->> 'planned')::int) from jsonb_array_elements(v -> 'buckets') b) = (v ->> 'planned')::int from s),
+            'overzicht: som van de maanden = totaal');
+select t.ok((select jsonb_array_length(v -> 'buckets') = 3 and v -> 'buckets' -> 0 ->> 'start' = '2026-10-01' from s),
+            'overzicht per maand: okt t/m dec 2026 (lege maanden inbegrepen)');
+create temp table w as select public.appointment_stats('2026-10-19 00:00 Europe/Amsterdam', '2026-10-26 00:00 Europe/Amsterdam', 'day') v;
+select t.ok((select jsonb_array_length(v -> 'buckets') = 7 and v -> 'buckets' -> 0 ->> 'start' = '2026-10-19'
+                    and (v ->> 'planned')::int = (select count(*) from public.appointments where status in ('ingepland','bezig','afgerond')
+                         and starts_at >= '2026-10-19 00:00 Europe/Amsterdam' and starts_at < '2026-10-26 00:00 Europe/Amsterdam') from w),
+            'overzicht week (ma–zo, 7 dagen, ook over wintertijdgrens)');
+select t.ok((select (v ->> 'planned')::int >= 0 from (select public.appointment_stats(null, null, 'year', p_unassigned => true) v) x), 'overzicht filter niet toegewezen');
+reset role;
+update public.profiles set active = false where id = '00000000-0000-0000-0000-00000000000c';
+set role authenticated;
+select t.login('00000000-0000-0000-0000-00000000000c');
+select t.expect_error($$select public.appointment_stats()$$, '%Geen toegang%', 'uitgeschakeld account kan overzicht niet zien');
+reset role;
+set role anon;
+select t.expect_error($$select public.appointment_stats()$$, '%permission denied%', 'anoniem geen overzicht');
+reset role;
+update public.profiles set active = true where id = '00000000-0000-0000-0000-00000000000c';
 
 \echo 'db_tests.sql: alle tests geslaagd'

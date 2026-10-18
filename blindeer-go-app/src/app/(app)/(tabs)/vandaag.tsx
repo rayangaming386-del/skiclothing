@@ -1,12 +1,14 @@
 import { router } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
-import { View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { AppointmentCard } from '../../../components/planning';
-import { Button, Card, Empty, ErrorState, Loading, Screen, Section, T } from '../../../components/ui';
+import { Button, Card, Empty, ErrorState, Loading, Screen, Section, T, useAccent } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth';
 import { useAppointmentsRange, useTeams } from '../../../lib/queries';
 import { addDays, formatDateLong, formatTime, todayIsoDate } from '../../../lib/time';
-import { space } from '../../../theme';
+import { dismissHint, hintDismissed, isStandalone, isWeb } from '../../../lib/pwa';
+import { periodRange, useStats } from '../../../lib/stats';
+import { colors, radius, space } from '../../../theme';
 
 export default function Today() {
   const { profile } = useAuth();
@@ -22,6 +24,10 @@ export default function Today() {
   }, []);
 
   const appts = useAppointmentsRange(today, addDays(today, 1));
+  const accent = useAccent();
+  const week = useStats(useMemo(() => periodRange('week', today), [today]), 'alle');
+  const month = useStats(useMemo(() => periodRange('maand', today), [today]), 'alle');
+  const [showHint, setShowHint] = useState(() => isWeb && !isStandalone() && !hintDismissed());
   const teams = useTeams();
   const teamById = useMemo(() => new Map((teams.data ?? []).map((t) => [t.id, t])), [teams.data]);
 
@@ -36,6 +42,30 @@ export default function Today() {
       <T.H1 style={{ marginBottom: space.md }}>{formatDateLong(today)}</T.H1>
 
       <Button title="Afspraak toevoegen" icon="＋" big onPress={() => router.push({ pathname: '/afspraak/nieuw', params: { date: today } })} />
+
+      <Pressable onPress={() => router.push('/overzicht')} accessibilityRole="button" accessibilityLabel="Naar overzicht" style={{ flexDirection: 'row', gap: space.sm, marginTop: space.md }}>
+        {[
+          { label: 'Vandaag', value: appts.data ? String(appts.data.filter((a) => a.status !== 'geannuleerd' && a.status !== 'niet_verschenen').length) : '–' },
+          { label: 'Deze week', value: week.data ? String(week.data.planned) : '–' },
+          { label: 'Deze maand', value: month.data ? String(month.data.planned) : '–' },
+        ].map((x) => (
+          <View key={x.label} style={{ flex: 1, backgroundColor: colors.surface, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, padding: space.md }}>
+            <Text style={{ color: colors.text, fontSize: 24, fontWeight: '800', fontVariant: ['tabular-nums'] }}>{x.value}</Text>
+            <Text style={{ color: colors.textDim, fontSize: 13 }}>{x.label}</Text>
+          </View>
+        ))}
+      </Pressable>
+
+      {showHint ? (
+        <Card style={{ marginTop: space.md, borderColor: accent }}>
+          <Text style={{ color: colors.text, fontWeight: '700', fontSize: 16 }}>Tip: zet de planning op je beginscherm</Text>
+          <T.Muted style={{ marginTop: 2 }}>Dan opent hij als een app, schermvullend en met een eigen icoon.</T.Muted>
+          <View style={{ flexDirection: 'row', gap: space.sm, marginTop: space.md }}>
+            <Button title="Laat zien hoe" onPress={() => router.push('/installeren')} style={{ flex: 1 }} />
+            <Button title="Niet nu" variant="secondary" onPress={() => { dismissHint(); setShowHint(false); }} style={{ flex: 1 }} />
+          </View>
+        </Card>
+      ) : null}
 
       {appts.isLoading ? (
         <Loading />

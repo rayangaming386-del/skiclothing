@@ -1,9 +1,11 @@
 import { router } from 'expo-router';
 import React from 'react';
-import { Alert } from 'react-native';
+
 import { Button, Card, Row, Screen, Section, T } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth';
+import { isStandalone, isWeb } from '../../../lib/pwa';
 import { space } from '../../../theme';
+import { Alert } from '../../../components/Dialog';
 
 export default function More() {
   const { profile, isOwner, signOut } = useAuth();
@@ -19,6 +21,12 @@ export default function More() {
         </T.Muted>
         <T.Muted style={{ marginTop: space.xs }}>Mijn account ›</T.Muted>
       </Card>
+
+      {isWeb && !isStandalone() ? (
+        <Section title="App">
+          <Row label="Op beginscherm zetten" onPress={go('/installeren')} />
+        </Section>
+      ) : null}
 
       <Section title="Planning">
         <Row label="Blokkades & afwezigheid" onPress={table('blokkades')} />

@@ -28,6 +28,7 @@ export default function TabsLayout() {
       <Tabs.Screen name="vandaag" options={{ title: 'Vandaag', tabBarIcon: ({ color }) => <Icon glyph="◉" color={color} /> }} />
       <Tabs.Screen name="agenda" options={{ title: 'Agenda', tabBarIcon: ({ color }) => <Icon glyph="▦" color={color} /> }} />
       <Tabs.Screen name="klanten" options={{ title: 'Klanten', tabBarIcon: ({ color }) => <Icon glyph="☰" color={color} /> }} />
+      <Tabs.Screen name="overzicht" options={{ title: 'Overzicht', tabBarIcon: ({ color }) => <Icon glyph="▥" color={color} /> }} />
       <Tabs.Screen name="meer" options={{ title: 'Meer', tabBarIcon: ({ color }) => <Icon glyph="⋯" color={color} /> }} />
     </Tabs>
   );

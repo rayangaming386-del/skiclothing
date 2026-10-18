@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { DialogHost } from '../components/Dialog';
 import { ToastProvider } from '../components/ui';
 import { AuthProvider } from '../lib/auth';
 import { isConfigured } from '../lib/supabase';
@@ -45,6 +46,7 @@ export default function RootLayout() {
                 animation: 'none',
               }}
             />
+            <DialogHost />
           </ToastProvider>
         </AuthProvider>
       </QueryClientProvider>

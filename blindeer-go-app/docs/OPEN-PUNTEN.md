@@ -1,25 +1,40 @@
-# Open punten en gekozen standaarden
+# Bedrijfsregels: vastgelegd en nog open
 
-Alles hieronder is in de app **aanpasbaar zonder code**. De standaard is zo voorzichtig mogelijk gekozen.
+Alles hieronder is in de app **aan te passen zonder code** (Meer → Beheer).
 
-| Open punt | Huidige instelling | Waar aanpassen |
+## Vastgelegd (antwoorden 18-10-2026)
+
+| Onderwerp | Instelling |
+|---|---|
+| Auto's tegelijk | **1** (hele bedrijf) |
+| Werkplekken | **Binckhorst** (wordt automatisch gekozen bij een nieuwe afspraak) |
+| Pauzes | 12:00–13:00 en 16:00–17:00 **maandag t/m zaterdag**; zondag geen pauzes (eerste start zondag 12:00) |
+| Buffer na laatste afspraak | Hoeft niet vóór sluiting te vallen (laatste start 21:00 ma–za, 19:00 zo bij 1 uur) |
+| Combinatiekorting | **€10 op voorportieren** bij elke combinatie met een andere behandeling (ook bus) |
+| Complete auto | B-stijl + voorportieren + voorruit (alle ramen), 150 min, vaste prijzen hieronder |
+| Adres, telefoon, prijzen, tijden | Zoals in de briefing (bevestigd) |
+
+### Complete auto
+
+| Auto | Met kameleon voorruit | Met zwarte voorruit |
 |---|---|---|
-| Hoeveel auto's kunnen tegelijk behandeld worden? | **1** (voorzichtig; niet aangenomen dat 3 accounts = 3 auto's) | Beheer → Bedrijfsgegevens & regels → Max. auto's tegelijk; per partij: Uitvoerende partijen |
-| Welke werkplekken zijn er? | Geen ingesteld | Beheer → Werkplekken |
-| Werken de drie partijen zelfstandig of samen? | Eén uitvoerende partij per afspraak; optioneel medewerker en werkplek | Bij samenwerken: partij "Niet toegewezen" of extra partij aanmaken |
-| Heeft iedereen een iPhone? | App is gebouwd voor iOS **en** Android | — |
-| Geldt de zondagpauze 12:00–13:00? | Ja (pauzes gelden iedere dag) → eerste start zondag 13:00 | Beheer → Pauzes (pauze per dag aanmaken) |
-| Moet de buffer na de laatste afspraak binnen openingstijd vallen? | Nee → laatste start 21:00 (ma–za) en 19:00 (zo) voor 1 uur | Beheer → Bedrijfsgegevens & regels |
-| Wat omvat "complete auto"? | Duur 150 min, prijs **nog te bepalen** | Beheer → Prijzen & behandeltijden |
-| Tesla Model 3-pakketten | Ingevoerd maar **inactief** (€350/180 min pakket; €140 sedanvariant) | Beheer → Pakketten / Modeluitzonderingen |
-| Combinatiekorting voorportieren (€10) | Ingevoerd maar **inactief**; voorstel: bij B-stijl of voorruitfolie, alleen personenauto's | Beheer → Kortingsregels |
-| Zijn prijzen, tijden en contactgegevens actueel? | Overgenomen uit de briefing | Beheer → diverse onderdelen |
-| Zwarte keramische voorruit: behandelduur | Onbekend → bij boeken handmatig invullen | Beheer → Prijzen & behandeltijden |
-| Achterlichten smoken | Geen prijs en geen tijd | idem |
-| Bus met meer dan vijf achterramen | Geen vaste prijs → nog te bepalen | idem |
-| Welke foliepercentages per raam/dienst? | Bedrijfslijst 3–70% als keuzelijst, keramisch/kameleon specifiek | Beheer → Diensten & folies |
-| Juridische naam, KvK, btw, btw-behandeling prijzen | Leeg / "nog niet vastgesteld" | Beheer → Bedrijfsgegevens |
-| Logo en huisstijlkleuren | Donker thema, accentkleur blauw; partijkleuren blauw/oranje/magenta | Beheer → Bedrijfsgegevens (accent), Uitvoerende partijen (kleuren) |
-| Afzender-e-mailadres voor uitnodigingen | Nog niet ingesteld | Supabase → SMTP (zie SETUP.md) |
-| Reviewer-account voor Apple | Nog te kiezen: tijdelijk account of apart demo-project | zie APP-STORE.md |
-| Bundle ID | `nl.blindeergo.planning` (voorstel) | app.json |
+| Hatchback | €290 | €280 |
+| Sedan | €320 | €300 |
+| Station, 7 ramen | €330 | €330 |
+| Station, 5 ramen | €300 | €300 |
+
+Bij een complete auto komt de €10 korting er niet nog eens af (die zit in de pakketprijs).
+Bij een Golf 5/6, Micra 2003 of Peugeot 307 station (modeluitzondering) wordt het pakket niet automatisch toegepast;
+dan staan de losse prijzen er en kun je de prijs zelf aanpassen.
+
+## Nog open (niet blokkerend)
+
+| Onderwerp | Huidige situatie |
+|---|---|
+| Compleet voor SUV, coupé en bus | Geen vaste prijs: de app telt de losse prijzen op (met korting) en waarschuwt; prijs is aan te passen. Vul eventueel een pakket in bij Beheer → Pakketten. |
+| Tesla Model 3 | Er zijn eerder twee prijzen genoemd (€350 voor glazen dak + achterramen, €140 voor alleen achterruit). Die staan klaar maar **uit**. Wil je ze gebruiken: zet ze aan bij Pakketten / Modeluitzonderingen. |
+| Duur zwarte keramische voorruit (los) | Onbekend → bij boeken de duur invullen, of instellen bij Prijzen & behandeltijden. |
+| Achterlichten smoken | Geen prijs en tijd vastgelegd. |
+| Bus met meer dan 5 achterramen | Geen vaste prijs. |
+| Juridische naam, KvK, btw | Leeg tot je ze invult. |
+| Logo | Tijdelijk "B&G"-icoon; vervangen door je logo in `public/icons/` en `assets/icon.png`. |

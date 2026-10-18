@@ -1,12 +1,12 @@
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert } from 'react-native';
 import { Button, Field, Notice, Screen, T, useToast } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth';
 import { toFriendlyError } from '../../../lib/errors';
 import { supabase } from '../../../lib/supabase';
 import { passwordProblem } from '../../../lib/validation';
 import { space } from '../../../theme';
+import { Alert } from '../../../components/Dialog';
 
 export default function ChangePassword() {
   const { session } = useAuth();

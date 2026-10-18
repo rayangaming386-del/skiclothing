@@ -7,23 +7,38 @@ import { supabase } from '../../lib/supabase';
 import { colors, space } from '../../theme';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
+  const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const submit = async () => {
     setError(null);
-    if (!email.trim() || !password) {
-      setError('Vul je e-mailadres en wachtwoord in.');
+    const value = login.trim();
+    if (!value || !password) {
+      setError('Vul je gebruikersnaam (of e-mailadres) en wachtwoord in.');
       return;
     }
     setBusy(true);
-    const { error: err } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
-    setBusy(false);
-    if (err) {
+    try {
+      let email = value.toLowerCase();
+      if (!value.includes('@')) {
+        // Inloggen met gebruikersnaam: zoek het bijbehorende e-mailadres op.
+        const { data, error: lookupErr } = await supabase.rpc('login_email_for', { p_login: value });
+        if (lookupErr) throw lookupErr;
+        if (!data) {
+          setError('Inloggen mislukt: gebruikersnaam of wachtwoord klopt niet.');
+          return;
+        }
+        email = data as string;
+      }
+      const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+      if (err) throw err;
+    } catch (err) {
       const f = toFriendlyError(err);
-      setError(`${f.title}: ${f.message}`);
+      setError(f.kind === 'auth' && f.title === 'Inloggen mislukt' ? 'Inloggen mislukt: gebruikersnaam of wachtwoord klopt niet.' : `${f.title}: ${f.message}`);
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -34,12 +49,12 @@ export default function Login() {
         <T.Muted style={{ marginTop: space.xs }}>Planning — alleen voor het team</T.Muted>
       </View>
       <Field
-        label="E-mailadres"
-        value={email}
-        onChangeText={setEmail}
+        label="Gebruikersnaam of e-mailadres"
+        value={login}
+        onChangeText={setLogin}
         autoCapitalize="none"
-        autoComplete="email"
-        keyboardType="email-address"
+        autoCorrect={false}
+        autoComplete="username"
         textContentType="username"
         returnKeyType="next"
       />

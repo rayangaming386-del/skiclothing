@@ -2,7 +2,7 @@ import * as Crypto from 'expo-crypto';
 import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useMemo, useState } from 'react';
-import { Alert, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { callPhone, openWhatsApp, StatusBadge, TeamBadge, treatmentsLabel, vehicleLabel } from '../../../components/planning';
 import { Button, Card, Chip, ChipRow, ErrorState, Loading, Notice, PromptModal, Row, Screen, Section, T, useToast } from '../../../components/ui';
 import { toFriendlyError } from '../../../lib/errors';
@@ -12,6 +12,7 @@ import { supabase } from '../../../lib/supabase';
 import { formatDateLong, formatDateTime, formatTime, isoDateOf } from '../../../lib/time';
 import { AppointmentStatus, statusLabel, STATUSES } from '../../../lib/types';
 import { colors, space, statusColors } from '../../../theme';
+import { Alert } from '../../../components/Dialog';
 
 const ACTION_LABELS: Record<string, string> = {
   aangemaakt: 'Aangemaakt',
@@ -169,7 +170,7 @@ export default function AppointmentDetail() {
                 label={i.service_name}
                 value={
                   <Text style={{ color: i.price_overridden ? colors.warning : colors.text }}>
-                    {formatEuro(i.price_cents)}
+                    {i.bundle_label && i.price_cents === 0 && !i.price_overridden ? 'inbegrepen' : formatEuro(i.price_cents)}
                     {i.price_overridden ? ` (std. ${formatEuro(i.standard_price_cents)})` : ''}
                   </Text>
                 }

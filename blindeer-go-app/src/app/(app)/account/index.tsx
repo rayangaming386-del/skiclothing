@@ -2,13 +2,14 @@ import * as ImagePicker from 'expo-image-picker';
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, Image, View } from 'react-native';
+import { Image, View } from 'react-native';
 import { Button, Card, Field, Notice, Row, Screen, Section, T, useToast } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth';
 import { toFriendlyError } from '../../../lib/errors';
 import { useTeams } from '../../../lib/queries';
 import { supabase } from '../../../lib/supabase';
 import { colors, space } from '../../../theme';
+import { Alert } from '../../../components/Dialog';
 
 export default function MyAccount() {
   const { profile, session, refreshProfile, signOut, isOwner } = useAuth();
@@ -99,6 +100,7 @@ export default function MyAccount() {
 
       <Section title="Inloggegevens">
         <Card>
+          <Row label="Gebruikersnaam" value={profile.username ?? '—'} />
           <Row label="E-mailadres" value={session.user.email ?? ''} />
           {session.user.new_email ? <Notice kind="warning">Wacht op bevestiging: {session.user.new_email}</Notice> : null}
           <Row label="Rol" value={isOwner ? 'Eigenaar' : 'Collega'} />

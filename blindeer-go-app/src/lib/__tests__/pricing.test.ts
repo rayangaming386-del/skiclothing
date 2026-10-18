@@ -135,23 +135,30 @@ describe('voorportieren en combinatiekorting', () => {
     expect(computeQuote(catalog, { body_type: 'bus', front_window_count: 4 }, [line('voorportieren')]).totalPriceCents).toBe(9000);
     expect(computeQuote(catalog, hatch5, [line('voorportieren')]).durationMin).toBe(45);
   });
-  it('korting staat standaard uit (te bevestigen) en wordt niet willekeurig toegepast', () => {
+  it('€10 korting op voorportieren bij combinatie (bv. B-stijl + voorportieren)', () => {
     const q = computeQuote(catalog, hatch5, [line('bstijl'), line('voorportieren')]);
-    expect(q.discountTotalCents).toBe(0);
-    expect(q.totalPriceCents).toBe(12000 + 7000);
-  });
-  const active = withActive((c) => c.discounts.forEach((d) => (d.active = true)));
-  it('na activeren: €10 korting → voorportieren €60 bij combinatie', () => {
-    const q = computeQuote(active, hatch5, [line('bstijl'), line('voorportieren')]);
     expect(q.discountTotalCents).toBe(1000);
     const vp = q.lines.find((l) => l.serviceId === sid('voorportieren'))!;
     expect(vp.priceCents! - vp.discountCents).toBe(6000);
     expect(vp.discountLabel).toMatch(/Combinatiekorting/);
     expect(q.totalPriceCents).toBe(12000 + 6000);
   });
-  it('geen korting zonder combinatie of voor bus (zolang niet ingesteld)', () => {
-    expect(computeQuote(active, hatch5, [line('voorportieren')]).discountTotalCents).toBe(0);
-    expect(computeQuote(active, { body_type: 'bus', rear_window_count: 3 }, [line('bstijl'), line('voorportieren')]).discountTotalCents).toBe(0);
+  it('korting geldt bij elke combinatie, ook met voorruit of panoramadak', () => {
+    expect(computeQuote(catalog, { ...hatch5, high_entry: false }, [line('voorportieren'), line('kameleon_voorruit')]).totalPriceCents).toBe(6000 + 13000);
+    expect(computeQuote(catalog, hatch5, [line('voorportieren'), line('panoramadak', { priceOverrideCents: 10000 })]).totalPriceCents).toBe(6000 + 10000);
+  });
+  it('geen korting als alleen voorportieren gekozen wordt', () => {
+    const q = computeQuote(catalog, hatch5, [line('voorportieren')]);
+    expect(q.discountTotalCents).toBe(0);
+    expect(q.totalPriceCents).toBe(7000);
+  });
+  it('korting geldt ook voor bus (alle combinaties)', () => {
+    const q = computeQuote(catalog, { body_type: 'bus', rear_window_count: 3 }, [line('bstijl'), line('voorportieren')]);
+    expect(q.totalPriceCents).toBe(11000 + 8000 - 1000);
+  });
+  it('korting wordt maar één keer toegepast', () => {
+    const q = computeQuote(catalog, { ...hatch5, high_entry: false }, [line('bstijl'), line('voorportieren'), line('panoramadak', { priceOverrideCents: 5000 })]);
+    expect(q.discountTotalCents).toBe(1000);
   });
   it('handmatige korting wordt zichtbaar opgeteld', () => {
     const q = computeQuote(catalog, hatch5, [line('bstijl', { manualDiscountCents: 500, manualDiscountLabel: 'Vaste klant' })]);
@@ -172,11 +179,6 @@ describe('pakketten en behandeltijden', () => {
     expect(q.bundle).toBeNull();
     expect(q.durationMin).toBe(150);
     expect(q.totalPriceCents).toBe(15000 + 13000);
-  });
-  it('complete auto: 150 min, prijs nog te bepalen', () => {
-    const q = computeQuote(catalog, hatch5, [line('complete_auto')]);
-    expect(q.durationMin).toBe(150);
-    expect(q.totalPriceCents).toBeNull();
   });
   it('panoramadak: prijs op zicht, handmatige prijs mogelijk en zichtbaar als afwijking', () => {
     const q0 = computeQuote(catalog, hatch5, [line('panoramadak')]);
@@ -217,6 +219,68 @@ describe('pakketten en behandeltijden', () => {
   it('meerdere behandelingen tellen op', () => {
     const q = computeQuote(catalog, hatch5, [line('bstijl'), line('voorportieren')]);
     expect(q.durationMin).toBe(105);
+  });
+});
+
+describe('complete auto (B-stijl + voorportieren + voorruit)', () => {
+  const compleet = (ruit: string) => [line('bstijl'), line('voorportieren'), line(ruit)];
+  const cases: [string, VehicleInput, string, number][] = [
+    ['hatchback kameleon', { body_type: 'hatchback', rear_window_count: 5 }, 'kameleon_voorruit', 29000],
+    ['hatchback zwart', { body_type: 'hatchback', rear_window_count: 5 }, 'keramisch_voorruit', 28000],
+    ['hatchback 3 ramen kameleon', { body_type: 'hatchback', door_count: 3, rear_window_count: 3 }, 'kameleon_voorruit', 29000],
+    ['sedan kameleon', { body_type: 'sedan', rear_window_count: 5 }, 'kameleon_voorruit', 32000],
+    ['sedan zwart', { body_type: 'sedan', rear_window_count: 5 }, 'keramisch_voorruit', 30000],
+    ['station 7 kameleon', { body_type: 'station', rear_window_count: 7 }, 'kameleon_voorruit', 33000],
+    ['station 7 zwart', { body_type: 'station', rear_window_count: 7 }, 'keramisch_voorruit', 33000],
+    ['station 5 kameleon', { body_type: 'station', rear_window_count: 5 }, 'kameleon_voorruit', 30000],
+    ['station 5 zwart', { body_type: 'station', rear_window_count: 5 }, 'keramisch_voorruit', 30000],
+  ];
+  it.each(cases)('%s → vaste pakketprijs, 150 min, geen extra korting', (_n, v, ruit, price) => {
+    const q = computeQuote(catalog, v, compleet(ruit));
+    expect(q.bundle?.name).toMatch(/^Compleet/);
+    expect(q.totalPriceCents).toBe(price);
+    expect(q.discountTotalCents).toBe(0);
+    expect(q.durationMin).toBe(150);
+  });
+  it('volgorde van kiezen maakt niet uit (voorportieren eerst)', () => {
+    const q = computeQuote(catalog, { body_type: 'sedan', rear_window_count: 5 }, [line('voorportieren'), line('keramisch_voorruit'), line('bstijl')]);
+    expect(q.totalPriceCents).toBe(30000);
+    expect(q.discountTotalCents).toBe(0);
+  });
+  it('instap maakt bij compleet niet uit (geen melding)', () => {
+    const q = computeQuote(catalog, { body_type: 'hatchback', rear_window_count: 5 }, compleet('kameleon_voorruit'));
+    expect(q.lines.flatMap((l) => l.notes).join(' ')).not.toMatch(/instap/);
+  });
+  it('station zonder bekend aantal ramen: geen pakketprijs', () => {
+    const q = computeQuote(catalog, { body_type: 'station' }, compleet('kameleon_voorruit'));
+    expect(q.bundle?.name ?? '').not.toMatch(/^Compleet/);
+  });
+  it('SUV/coupé/bus: geen vaste completeprijs → som van onderdelen met korting', () => {
+    const q = computeQuote(catalog, { body_type: 'suv', rear_window_count: 5, high_entry: true }, compleet('kameleon_voorruit'));
+    expect(q.bundle?.name ?? '').not.toMatch(/^Compleet/);
+    expect(q.totalPriceCents).toBe(13000 + 7000 - 1000 + 15000);
+  });
+  it('Golf 5 compleet: pakket niet automatisch (uitzonderingsmodel), losse prijzen en duur', () => {
+    const q = computeQuote(catalog, { ...hatch5, make: 'Volkswagen', model: 'Golf 5', high_entry: false }, compleet('kameleon_voorruit'));
+    expect(q.bundle).toBeNull();
+    expect(q.totalPriceCents).toBe(15000 + 7000 - 1000 + 13000);
+    expect(q.durationMin).toBe(90 + 45 + 60);
+    expect(q.warnings.join(' ')).toMatch(/modeluitzondering/);
+  });
+  it('compleet wint van het kleinere pakket B-stijl + kameleon', () => {
+    const q = computeQuote(catalog, hatch5, compleet('kameleon_voorruit'));
+    expect(q.bundle?.name).toBe('Compleet hatchback met kameleon voorruit');
+  });
+  it('B-stijl + kameleon zonder voorportieren: nog steeds 120 min', () => {
+    const q = computeQuote(catalog, { ...hatch5, high_entry: false }, [line('bstijl'), line('kameleon_voorruit')]);
+    expect(q.durationMin).toBe(120);
+  });
+  it('handmatige prijs blijft mogelijk bij compleet', () => {
+    const sel = compleet('kameleon_voorruit');
+    sel[0] = { ...sel[0], priceOverrideCents: 27500 };
+    const q = computeQuote(catalog, hatch5, sel);
+    expect(q.totalPriceCents).toBe(27500);
+    expect(q.deviatesFromStandard).toBe(true);
   });
 });
 

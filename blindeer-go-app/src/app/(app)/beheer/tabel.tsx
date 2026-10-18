@@ -295,6 +295,7 @@ const CONFIGS: Record<string, TableConfig> = {
       { key: 'make', label: 'Alleen voor merk', type: 'text' },
       { key: 'match_terms', label: 'Alleen voor model (zoektermen)', type: 'textlist' },
       { key: 'body_type', label: 'Alleen voor carrosserie', type: 'select', options: 'body', nullable: true, nullLabel: 'Alle' },
+      { key: 'rear_window_count', label: 'Alleen bij aantal achterramen', type: 'int', hint: 'Leeg = maakt niet uit' },
       { key: 'price_cents', label: 'Pakketprijs totaal (€)', type: 'money', hint: 'Leeg = som van de onderdelen' },
       { key: 'duration_min', label: 'Pakketduur (min)', type: 'int', hint: 'Leeg = som van de onderdelen' },
       { key: 'active', label: 'Actief', type: 'bool' },
@@ -310,11 +311,12 @@ const CONFIGS: Record<string, TableConfig> = {
     allowDelete: true,
     order: [{ col: 'name' }],
     invalidate: [['catalog']],
-    defaults: { active: false, required_any_service_ids: [] },
+    defaults: { active: false, required_any_service_ids: [], requires_any_other: true },
     intro: 'Kortingen worden alleen toegepast als ze actief zijn en aan alle voorwaarden is voldaan.',
     describe: (r, ctx) => ({
       title: r.name,
       subtitle: `${formatEuro(r.amount_cents)} op ${ctx.label('services', r.target_service_id)}${
+        r.requires_any_other ? ' bij elke combinatie' : ''}${
         r.required_any_service_ids?.length ? ` bij combinatie met ${r.required_any_service_ids.map((id: string) => ctx.label('services', id)).join(' of ')}` : ''
       }${r.notes ? ` · ${r.notes}` : ''}`,
       inactive: !r.active,
@@ -322,7 +324,8 @@ const CONFIGS: Record<string, TableConfig> = {
     fields: [
       { key: 'name', label: 'Naam', type: 'text', required: true },
       { key: 'target_service_id', label: 'Korting op dienst', type: 'select', options: 'services', required: true },
-      { key: 'required_any_service_ids', label: 'Alleen in combinatie met één van', type: 'multiselect', options: 'services', hint: 'Niets gekozen = altijd' },
+      { key: 'requires_any_other', label: 'Bij elke combinatie met een andere behandeling', type: 'bool' },
+      { key: 'required_any_service_ids', label: 'Of: alleen in combinatie met één van', type: 'multiselect', options: 'services', hint: 'Niets gekozen en schakelaar uit = altijd' },
       { key: 'body_types', label: 'Alleen voor carrosserie', type: 'multiselect', options: 'body', nullable: true, nullLabel: 'Alle' },
       { key: 'amount_cents', label: 'Bedrag (€)', type: 'money', required: true },
       { key: 'active', label: 'Actief', type: 'bool' },

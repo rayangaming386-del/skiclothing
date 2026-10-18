@@ -1,13 +1,13 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert } from 'react-native';
 import { Button, Field, Loading, Notice, Screen, useToast } from '../../../components/ui';
 import { toFriendlyError } from '../../../lib/errors';
 import { qk, useCustomer } from '../../../lib/queries';
 import { supabase } from '../../../lib/supabase';
 import { isEmail } from '../../../lib/validation';
 import { space } from '../../../theme';
+import { Alert } from '../../../components/Dialog';
 
 export default function EditCustomer() {
   const { id } = useLocalSearchParams<{ id?: string }>();

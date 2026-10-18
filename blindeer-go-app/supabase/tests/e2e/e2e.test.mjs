@@ -364,4 +364,78 @@ await expectError(() => client().auth.verifyOtp({ email: 'tsn@e2e.test', token: 
   ok('geen verbinding: opslaan faalt met melding "er is niets opgeslagen"');
 }
 
+
+// ---------------------------------------------------------------------------
+// 11. Accounts aanmaken met script + inloggen met gebruikersnaam
+// ---------------------------------------------------------------------------
+{
+  const run = (pw) =>
+    execFileSync('node', [path.join(appRoot, 'scripts/accounts-aanmaken.mjs')], {
+      env: {
+        ...process.env,
+        SUPABASE_URL: URL,
+        SUPABASE_SERVICE_ROLE_KEY: SERVICE,
+        SUPABASE_ANON_KEY: ANON,
+        ACCOUNT_BLINDEERREUS_EMAIL: 'baas@e2e.test',
+        ACCOUNT_BLINDEERREUS_PASSWORD: pw[0],
+        ACCOUNT_PROTINTMASTER_EMAIL: 'khalid@e2e.test',
+        ACCOUNT_PROTINTMASTER_PASSWORD: pw[1],
+        ACCOUNT_TINTSERVICENL_EMAIL: 'damien@e2e.test',
+        ACCOUNT_TINTSERVICENL_PASSWORD: pw[2],
+      },
+    }).toString();
+  const out = run(['Proef-Baas-2026a', 'Proef-Pro-2026a', 'Proef-Tsn-2026a']);
+  assert.match(out, /inloggen met "BlindeerReus" gecontroleerd/);
+  assert.match(out, /inloggen met "ProTintMaster" gecontroleerd/);
+  assert.match(out, /inloggen met "TintserviceNL" gecontroleerd/);
+  ok('accountscript maakt drie accounts aan en controleert het inloggen');
+  const rows = sql(`select username || ':' || role || ':' || coalesce((select name from public.teams t where t.id = team_id), '-') || ':' || display_name from public.profiles where username is not null order by username`);
+  assert.equal(rows, 'BlindeerReus:owner:Blindeer & Go:BlindeerReus\nProTintMaster:colleague:Pro TintMaster:Pro TintMaster\nTintserviceNL:colleague:TintserviceNL:TintserviceNL');
+  ok('rollen, partijen en namen goed ingesteld (BlindeerReus = eigenaar)');
+
+  async function loginWithUsername(username, password) {
+    const c = client();
+    const { data: email, error } = await c.rpc('login_email_for', { p_login: username });
+    if (error) throw error;
+    const r = await c.auth.signInWithPassword({ email: email ?? '', password });
+    return { c, error: r.error };
+  }
+  for (const [u, pw] of [['blindeerreus', 'Proef-Baas-2026a'], ['PROTINTMASTER', 'Proef-Pro-2026a'], ['Tintservicenl', 'Proef-Tsn-2026a']]) {
+    const { error } = await loginWithUsername(u, pw);
+    assert.ifError(error);
+  }
+  ok('inloggen met gebruikersnaam werkt, hoofdletters maken niet uit');
+  assert.ok((await loginWithUsername('ProTintMaster', 'fout-wachtwoord1')).error);
+  ok('gebruikersnaam met fout wachtwoord geweigerd');
+
+  // Script nogmaals draaien = wachtwoord bijwerken, geen dubbele accounts
+  run(['Proef-Baas-2026b', 'Proef-Pro-2026a', 'Proef-Tsn-2026a']);
+  assert.equal(sql(`select count(*) from public.profiles where username is not null`), '3');
+  assert.ifError((await loginWithUsername('BlindeerReus', 'Proef-Baas-2026b')).error);
+  assert.ok((await loginWithUsername('BlindeerReus', 'Proef-Baas-2026a')).error);
+  ok('script opnieuw draaien werkt het wachtwoord bij zonder dubbele accounts');
+
+  // Uitnodigen met gebruikersnaam via teambeheer
+  const { c: baas } = await loginWithUsername('BlindeerReus', 'Proef-Baas-2026b');
+  const since = mails().length;
+  const inv = await baas.functions.invoke('admin-users', { body: { action: 'invite', email: 'nieuw@e2e.test', display_name: 'Nieuwe collega', username: 'NieuweCollega', role: 'colleague' } });
+  assert.ifError(inv.error);
+  const { code } = await waitForCode('nieuw@e2e.test', since);
+  const nc = client();
+  assert.ifError((await nc.auth.verifyOtp({ email: 'nieuw@e2e.test', token: code, type: 'invite' })).error);
+  assert.ifError((await nc.auth.updateUser({ password: 'Collega12345' })).error);
+  assert.ifError((await loginWithUsername('nieuwecollega', 'Collega12345')).error);
+  ok('uitnodiging met gebruikersnaam: daarna inloggen met die gebruikersnaam');
+  await expectError(
+    () => baas.functions.invoke('admin-users', { body: { action: 'invite', email: 'ander@e2e.test', display_name: 'X', username: 'protintmaster', role: 'colleague' } }),
+    /non-2xx|409/,
+    'uitnodiging met bestaande gebruikersnaam geweigerd',
+  );
+
+  // Overzicht via de API
+  const st = await rpc(baas, 'appointment_stats', { p_from: null, p_to: null, p_bucket: 'month' });
+  assert.equal(st.planned, Number(sql(`select count(*) from public.appointments where status in ('ingepland','bezig','afgerond')`)));
+  ok('overzicht (alle tijd) via de API klopt met de database');
+}
+
 console.log(`\nE2E: ${passed} controles geslaagd`);
