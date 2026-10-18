@@ -1,6 +1,6 @@
 // Rustige, donkere automotive-stijl. Accentkleur is instelbaar via Bedrijfsinstellingen.
 export const colors = {
-  bg: '#0B0F14',
+  bg: '#000000', // gelijk aan de achtergrond van het logo
   surface: '#141A22',
   surface2: '#1C2430',
   border: '#2A3442',

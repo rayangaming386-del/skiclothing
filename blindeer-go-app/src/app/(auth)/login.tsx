@@ -1,6 +1,6 @@
 import { Link } from 'expo-router';
 import React, { useState } from 'react';
-import { Text, View } from 'react-native';
+import { Image, Text, View } from 'react-native';
 import { Button, Field, Notice, Screen, T } from '../../components/ui';
 import { toFriendlyError } from '../../lib/errors';
 import { supabase } from '../../lib/supabase';
@@ -44,9 +44,14 @@ export default function Login() {
 
   return (
     <Screen edges={['top', 'bottom']}>
-      <View style={{ marginTop: 48, marginBottom: 32 }}>
-        <T.H1>Blindeer & Go</T.H1>
-        <T.Muted style={{ marginTop: space.xs }}>Planning — alleen voor het team</T.Muted>
+      <View style={{ marginTop: 32, marginBottom: 28, alignItems: 'center' }}>
+        <Image
+          source={require('../../../assets/logo-wide.png')}
+          style={{ width: 320, height: 126, maxWidth: '100%' }}
+          resizeMode="contain"
+          accessibilityLabel="Blindeer & Go"
+        />
+        <T.Muted style={{ marginTop: space.md }}>Planning — alleen voor het team</T.Muted>
       </View>
       <Field
         label="Gebruikersnaam of e-mailadres"

@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 import { AppointmentCard } from '../../../components/planning';
 import { Button, Card, Empty, ErrorState, Loading, Screen, Section, T, useAccent } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth';
@@ -38,8 +38,13 @@ export default function Today() {
 
   return (
     <Screen onRefresh={() => appts.refetch()} refreshing={appts.isRefetching}>
-      <T.Muted>Hallo {profile?.display_name}</T.Muted>
-      <T.H1 style={{ marginBottom: space.md }}>{formatDateLong(today)}</T.H1>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.md, marginBottom: space.md }}>
+        <Image source={require('../../../../assets/logo-round.png')} style={{ width: 56, height: 56 }} accessibilityLabel="Blindeer & Go" />
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <T.Muted>Hallo {profile?.display_name}</T.Muted>
+          <T.H1 style={{ fontSize: 24 }}>{formatDateLong(today)}</T.H1>
+        </View>
+      </View>
 
       <Button title="Afspraak toevoegen" icon="＋" big onPress={() => router.push({ pathname: '/afspraak/nieuw', params: { date: today } })} />
 

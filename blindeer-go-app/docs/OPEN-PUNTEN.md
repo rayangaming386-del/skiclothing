@@ -37,4 +37,4 @@ dan staan de losse prijzen er en kun je de prijs zelf aanpassen.
 | Achterlichten smoken | Geen prijs en tijd vastgelegd. |
 | Bus met meer dan 5 achterramen | Geen vaste prijs. |
 | Juridische naam, KvK, btw | Leeg tot je ze invult. |
-| Logo | Tijdelijk "B&G"-icoon; vervangen door je logo in `public/icons/` en `assets/icon.png`. |
+| Logo | Verwerkt (rond logo = app-icoon, breed logo op het inlogscherm). |
