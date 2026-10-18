@@ -27,9 +27,9 @@ Dezelfde code kan later alsnog als echte iOS/Android-app gebouwd worden (EAS), m
 - Bedragen in centen; `NULL` = "nog te bepalen" (nooit automatisch €0).
 
 ## Rollen en rechten (afgedwongen in de database)
-- Elke tabel heeft **Row Level Security**. Toegang vereist een ingelogd, **actief** profiel. Een uitgeschakeld account ziet direct niets meer — ook met een sessie die nog geldig is — en kan zijn sessie niet meer vernieuwen of opnieuw inloggen (ban).
+- Elke tabel heeft **Row Level Security**. Toegang vereist een ingelogd, **actief** profiel. Een uitgeschakeld account ziet direct niets meer, ook met een sessie die nog geldig is, en kan zijn sessie niet meer vernieuwen of opnieuw inloggen (ban).
 - Eigenaar: bedrijfsregels, prijzen, catalogus, gebruikers en rollen. Collega: planning, klanten, auto's, blokkades/afwezigheid, eigen profiel.
-- Gebruikers kunnen alleen `display_name`, `phone`, `avatar_path`, `notification_prefs` van hun **eigen** profiel wijzigen (kolomrechten); rol/actief/partij alleen via `admin_update_member` (eigenaar) — er blijft altijd minimaal één actieve eigenaar.
+- Gebruikers kunnen alleen `display_name`, `phone`, `avatar_path`, `notification_prefs` van hun **eigen** profiel wijzigen (kolomrechten); rol/actief/partij alleen via `admin_update_member` (eigenaar). Er blijft altijd minimaal één actieve eigenaar.
 - Afspraken zijn **alleen te schrijven via serverfuncties** (`save_appointment`, `set_appointment_status`), zodat alle controles altijd draaien.
 
 ## Boekingsregels en gelijktijdig boeken
@@ -59,7 +59,7 @@ Alles wordt als UTC opgeslagen en weergegeven in `Europe/Amsterdam` (instelbaar)
 2. **Eigen extra back-up**: `scripts/backup.sh` (pg_dump van `public` en `auth`), bijv. wekelijks; bewaar versleuteld (bevat klantgegevens). Terugzetten met `pg_restore` naar een lege database.
 3. Test het terugzetten eens per kwartaal op het testproject.
 
-## Externe accounts en terugkerende kosten (indicatief — controleer actuele prijzen)
+## Externe accounts en terugkerende kosten (indicatief, controleer actuele prijzen)
 | Dienst | Waarvoor | Kosten |
 |---|---|---|
 | Supabase | database, inloggen, live bijwerken, foto-opslag | Free, of **Pro ± $25 / maand** (aanbevolen: dagelijkse back-ups) |

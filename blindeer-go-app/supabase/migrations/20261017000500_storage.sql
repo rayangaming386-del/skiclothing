@@ -2,7 +2,7 @@
 do $$
 begin
   if not exists (select 1 from pg_namespace where nspname = 'storage') then
-    raise notice 'storage-schema ontbreekt (lokale test zonder Supabase) — overgeslagen';
+    raise notice 'storage-schema ontbreekt (lokale test zonder Supabase), overgeslagen';
     return;
   end if;
 

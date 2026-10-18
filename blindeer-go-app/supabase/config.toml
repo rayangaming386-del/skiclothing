@@ -47,19 +47,19 @@ subject = "Uitnodiging Blindeer & Go Planning"
 content_path = "./supabase/templates/invite.html"
 
 [auth.email.template.recovery]
-subject = "Wachtwoord herstellen – Blindeer & Go Planning"
+subject = "Blindeer & Go Planning: wachtwoord herstellen"
 content_path = "./supabase/templates/recovery.html"
 
 [auth.email.template.email_change]
-subject = "Bevestig je nieuwe e-mailadres – Blindeer & Go Planning"
+subject = "Blindeer & Go Planning: bevestig je nieuwe e-mailadres"
 content_path = "./supabase/templates/email_change.html"
 
 [auth.email.template.reauthentication]
-subject = "Bevestigingscode – Blindeer & Go Planning"
+subject = "Blindeer & Go Planning: bevestigingscode"
 content_path = "./supabase/templates/reauthentication.html"
 
 [auth.email.template.magic_link]
-subject = "Inlogcode – Blindeer & Go Planning"
+subject = "Blindeer & Go Planning: inlogcode"
 content_path = "./supabase/templates/magic_link.html"
 
 [functions.admin-users]

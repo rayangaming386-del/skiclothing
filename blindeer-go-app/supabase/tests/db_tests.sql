@@ -24,9 +24,9 @@ begin
       raise notice 'ok - % (fout: %)', p_name, v_msg;
       return;
     end if;
-    raise exception 'TEST MISLUKT: % — onverwachte fout: % / % / %', p_name, v_msg, v_hint, v_detail;
+    raise exception 'TEST MISLUKT: %, onverwachte fout: % / % / %', p_name, v_msg, v_hint, v_detail;
   end;
-  raise exception 'TEST MISLUKT: % — fout bleef uit', p_name;
+  raise exception 'TEST MISLUKT: %, fout bleef uit', p_name;
 end $$;
 
 -- Afspraak-payload helper (lokale tijd in Europe/Amsterdam)
@@ -53,7 +53,7 @@ grant execute on all functions in schema t to public;
 -- Accounts (zoals ze via uitnodigingen binnenkomen)
 -- ---------------------------------------------------------------------------
 insert into auth.users (id, email, raw_user_meta_data, raw_app_meta_data) values
-  ('00000000-0000-0000-0000-00000000000a', 'eigenaar@test.invalid', '{"display_name":"Rayan — Blindeer & Go"}', '{"role":"owner"}'),
+  ('00000000-0000-0000-0000-00000000000a', 'eigenaar@test.invalid', '{"display_name":"Rayan (Blindeer & Go)"}', '{"role":"owner"}'),
   ('00000000-0000-0000-0000-00000000000b', 'collega1@test.invalid', '{"display_name":"Pro TintMaster","role":"owner"}',
      jsonb_build_object('role', 'colleague', 'team_id', (select id from public.teams where name = 'Pro TintMaster'))),
   ('00000000-0000-0000-0000-00000000000c', 'collega2@test.invalid', '{"display_name":"TintserviceNL"}',

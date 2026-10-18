@@ -474,7 +474,7 @@ revoke all on function public.save_appointment(jsonb) from public, anon;
 grant execute on function public.save_appointment(jsonb) to authenticated;
 
 -- ---------------------------------------------------------------------------
--- Status wijzigen (incl. annuleren — de afspraak blijft bewaard).
+-- Status wijzigen (incl. annuleren; de afspraak blijft bewaard).
 -- ---------------------------------------------------------------------------
 create or replace function public.set_appointment_status(
   p_id uuid,

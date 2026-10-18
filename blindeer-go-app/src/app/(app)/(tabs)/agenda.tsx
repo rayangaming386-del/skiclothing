@@ -93,7 +93,7 @@ export default function Agenda() {
     mode === 'dag'
       ? formatDateLong(date)
       : mode === 'week'
-        ? `Week ${DateTime.fromISO(date).weekNumber} · ${formatDateShort(startOfWeek(date))} – ${formatDateShort(addDays(startOfWeek(date), 6))}`
+        ? `Week ${DateTime.fromISO(date).weekNumber} · ${formatDateShort(startOfWeek(date))} t/m ${formatDateShort(addDays(startOfWeek(date), 6))}`
         : DateTime.fromISO(month).setLocale('nl').toFormat('LLLL yyyy').replace(/^./, (c) => c.toUpperCase());
 
   const activeFilterCount = (teamFilter !== 'alle' ? 1 : 0) + (statusFilter.length ? 1 : 0);

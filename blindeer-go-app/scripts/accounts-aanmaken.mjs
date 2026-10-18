@@ -63,7 +63,7 @@ async function findUserByEmail(email) {
 
 let failures = 0;
 for (const acc of ACCOUNTS) {
-  console.log(`\n— ${acc.display_name} (gebruikersnaam: ${acc.username}, rol: ${acc.role === 'owner' ? 'eigenaar' : 'collega'})`);
+  console.log(`\n* ${acc.display_name} (gebruikersnaam: ${acc.username}, rol: ${acc.role === 'owner' ? 'eigenaar' : 'collega'})`);
   let email = (process.env[envKey(acc.username, 'EMAIL')] ?? (await ask('  E-mailadres (leeg = overslaan): '))).toLowerCase();
   if (!email) {
     console.log('  overgeslagen');
@@ -84,7 +84,7 @@ for (const acc of ACCOUNTS) {
 
   try {
     const { data: team, error: teamErr } = await admin.from('teams').select('id').eq('name', acc.team).single();
-    if (teamErr) throw new Error(`partij "${acc.team}" niet gevonden — zijn de migraties uitgevoerd?`);
+    if (teamErr) throw new Error(`partij "${acc.team}" niet gevonden. Zijn de migraties uitgevoerd?`);
     const app_metadata = { role: acc.role, team_id: team.id, username: acc.username };
 
     let user = await findUserByEmail(email);
@@ -133,7 +133,7 @@ for (const acc of ACCOUNTS) {
   }
 }
 
-console.log(failures ? `\n${failures} account(s) niet gelukt — zie hierboven.` : '\nKlaar.');
+console.log(failures ? `\n${failures} account(s) niet gelukt, zie hierboven.` : '\nKlaar.');
 process.exit(failures ? 1 : 0);
 
 // Niet-interactief (bijv. voor tests): zet per account

@@ -128,7 +128,7 @@ export function VehicleForm({ value, onChange }: { value: VehicleDraft; onChange
       </ChipRow>
       {value.high_entry == null && suggestion != null ? (
         <Text style={{ color: colors.info, marginTop: 6 }} onPress={() => set('high_entry', suggestion)}>
-          Suggestie: {suggestion ? 'hoge instap' : 'gewone instap'} — tik om over te nemen
+          Suggestie: {suggestion ? 'hoge instap' : 'gewone instap'}. Tik om over te nemen
         </Text>
       ) : null}
       <View style={{ height: space.md }} />

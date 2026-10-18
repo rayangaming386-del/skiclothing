@@ -50,9 +50,9 @@ export default function Today() {
 
       <Pressable onPress={() => router.push('/overzicht')} accessibilityRole="button" accessibilityLabel="Naar overzicht" style={{ flexDirection: 'row', gap: space.sm, marginTop: space.md }}>
         {[
-          { label: 'Vandaag', value: appts.data ? String(appts.data.filter((a) => a.status !== 'geannuleerd' && a.status !== 'niet_verschenen').length) : '–' },
-          { label: 'Deze week', value: week.data ? String(week.data.planned) : '–' },
-          { label: 'Deze maand', value: month.data ? String(month.data.planned) : '–' },
+          { label: 'Vandaag', value: appts.data ? String(appts.data.filter((a) => a.status !== 'geannuleerd' && a.status !== 'niet_verschenen').length) : '…' },
+          { label: 'Deze week', value: week.data ? String(week.data.planned) : '…' },
+          { label: 'Deze maand', value: month.data ? String(month.data.planned) : '…' },
         ].map((x) => (
           <View key={x.label} style={{ flex: 1, backgroundColor: colors.surface, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, padding: space.md }}>
             <Text style={{ color: colors.text, fontSize: 24, fontWeight: '800', fontVariant: ['tabular-nums'] }}>{x.value}</Text>

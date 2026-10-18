@@ -100,11 +100,11 @@ export default function MyAccount() {
 
       <Section title="Inloggegevens">
         <Card>
-          <Row label="Gebruikersnaam" value={profile.username ?? '—'} />
+          <Row label="Gebruikersnaam" value={profile.username ?? 'Geen'} />
           <Row label="E-mailadres" value={session.user.email ?? ''} />
           {session.user.new_email ? <Notice kind="warning">Wacht op bevestiging: {session.user.new_email}</Notice> : null}
           <Row label="Rol" value={isOwner ? 'Eigenaar' : 'Collega'} />
-          <Row label="Uitvoerende partij" value={teams.data?.find((t) => t.id === profile.team_id)?.name ?? '—'} />
+          <Row label="Uitvoerende partij" value={teams.data?.find((t) => t.id === profile.team_id)?.name ?? 'Geen'} />
         </Card>
         <Row label="Wachtwoord wijzigen" onPress={() => router.push('/account/wachtwoord')} />
         <Row label="E-mailadres wijzigen" onPress={() => router.push('/account/email')} />

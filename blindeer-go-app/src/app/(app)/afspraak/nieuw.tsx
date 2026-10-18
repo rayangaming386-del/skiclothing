@@ -161,7 +161,7 @@ export default function AppointmentEditor() {
       : '';
 
   if (!initialized || catalog.isLoading || settings.isLoading) return <Loading />;
-  if (catalog.error) return <Loading label="Catalogus laden mislukt — controleer de verbinding." />;
+  if (catalog.error) return <Loading label="Catalogus laden mislukt. Controleer de verbinding." />;
 
   // ---------------------------------------------------------------------------
   const startsAtIso = time ? localToUtcIso(date, time) : null;
@@ -171,7 +171,7 @@ export default function AppointmentEditor() {
   const priceCents = snapshot ? (snapshot.price_complete ? snapshot.price_total_cents : null) : quote?.totalPriceCents ?? null;
   const knownCents = snapshot ? snapshot.price_total_cents ?? 0 : quote?.knownTotalCents ?? 0;
   const priceLabel =
-    priceCents != null ? formatEuro(priceCents) : selections.length && knownCents ? `${formatEuro(knownCents)} + ?` : selections.length ? 'prijs nog te bepalen' : '—';
+    priceCents != null ? formatEuro(priceCents) : selections.length && knownCents ? `${formatEuro(knownCents)} + ?` : selections.length ? 'prijs nog te bepalen' : 'Nog geen prijs';
   const serviceNames = snapshot
     ? [...(snapshot.appointment_items ?? [])].sort((x, y) => x.position - y.position).map((i) => i.service_name)
     : (quote?.lines ?? []).map((l) => l.serviceName);
@@ -626,7 +626,7 @@ function CustomerStep({ value, onChange }: { value: CustomerSel | null; onChange
       {(search.data ?? []).map((c) => (
         <Card key={c.id} onPress={() => onChange({ id: c.id, name: c.name, phone: c.phone, email: c.email })}>
           <Text style={{ color: colors.text, fontWeight: '700', fontSize: 16 }}>{c.name}</Text>
-          <T.Muted>{[c.phone, ...c.vehicles.map((v) => v.plate?.toUpperCase())].filter(Boolean).join(' · ') || '—'}</T.Muted>
+          <T.Muted>{[c.phone, ...c.vehicles.map((v) => v.plate?.toUpperCase())].filter(Boolean).join(' · ') || 'Geen telefoonnummer'}</T.Muted>
         </Card>
       ))}
     </View>
@@ -703,7 +703,7 @@ function VehicleStep({
         <VehicleForm value={form} onChange={setForm} />
         {error ? <Notice kind="danger">{error}</Notice> : null}
         <Button title="Auto opslaan" onPress={create} loading={busy} />
-        <Button title="Auto nog onbekend — overslaan" variant="ghost" onPress={() => { setCreating(false); onSkip(); }} style={{ marginTop: space.sm }} />
+        <Button title="Auto nog onbekend, overslaan" variant="ghost" onPress={() => { setCreating(false); onSkip(); }} style={{ marginTop: space.sm }} />
         {vehicles.length ? <Button title="Bestaande auto kiezen" variant="ghost" onPress={() => setCreating(false)} /> : null}
       </View>
     );
@@ -743,7 +743,7 @@ function VehicleStep({
         )
       ) : null}
       <Button title="Andere auto toevoegen" icon="＋" variant="secondary" onPress={() => setCreating(true)} style={{ marginTop: space.md }} />
-      <Button title={skipped ? '✓ Auto nog onbekend' : 'Auto nog onbekend — overslaan'} variant="ghost" onPress={onSkip} style={{ marginTop: space.sm }} />
+      <Button title={skipped ? '✓ Auto nog onbekend' : 'Auto nog onbekend, overslaan'} variant="ghost" onPress={onSkip} style={{ marginTop: space.sm }} />
     </View>
   );
 }
@@ -808,7 +808,7 @@ function ServicesStep({
       {!snapshot && pickedCompleet && vehicleInput.body_type && !(quote?.bundle?.name ?? '').startsWith('Compleet') && !quote?.lines.some((l) => l.exceptionId) ? (
         <Notice kind="warning">
           Voor deze auto is geen vaste prijs voor compleet ingesteld (vast: hatchback, sedan, station met 5 of 7 ramen). Hieronder staan de losse prijzen met
-          combinatiekorting — pas de prijs zo nodig aan.
+          combinatiekorting. Pas de prijs zo nodig aan.
         </Notice>
       ) : null}
       <ChipRow>
@@ -834,7 +834,7 @@ function ServicesStep({
               <>
                 {line.bundleId && quote?.bundle?.priceCents != null ? (
                   <Text style={{ color: colors.info, marginTop: 2 }}>
-                    Onderdeel van pakket "{line.bundleLabel}" — {formatEuro(quote.bundle.priceCents)} totaal
+                    Onderdeel van pakket "{line.bundleLabel}": {formatEuro(quote.bundle.priceCents)} totaal
                   </Text>
                 ) : (
                   <T.Muted>
@@ -877,7 +877,7 @@ function ServicesStep({
             ) : null}
             {percentages.length ? (
               <View style={{ marginTop: space.sm }}>
-                <Text style={ui.label}>Foliepercentage{service?.film_percentages ? '' : ' (bedrijfslijst — controleer beschikbaarheid per raam)'}</Text>
+                <Text style={ui.label}>Foliepercentage{service?.film_percentages ? '' : ' (bedrijfslijst, controleer beschikbaarheid per raam)'}</Text>
                 <ChipRow>
                   {percentages.map((p) => (
                     <Chip key={p} label={`${p}%`} selected={sel.filmPercentage === p} onPress={() => update(sel.serviceId, { filmPercentage: sel.filmPercentage === p ? null : p })} />

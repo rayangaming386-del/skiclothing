@@ -69,7 +69,7 @@ export function isoDateOf(iso: string, zone = businessZone): string {
   return inZone(iso, zone).toISODate()!;
 }
 
-/** Minuten sinds middernacht (bedrijfstijd) — voor plaatsing in de dagweergave. */
+/** Minuten sinds middernacht (bedrijfstijd), voor plaatsing in de dagweergave. */
 export function minutesOfDay(iso: string, zone = businessZone): number {
   const d = inZone(iso, zone);
   return d.hour * 60 + d.minute;

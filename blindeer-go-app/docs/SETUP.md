@@ -8,7 +8,7 @@ Benodigd op je computer: [Node.js 20 of nieuwer](https://nodejs.org) en een term
 
 ---
 
-## Stap 1 — Supabase-project (database en accounts)
+## Stap 1: Supabase-project (database en accounts)
 
 1. Maak een account op **supabase.com** → **New project**.
    - Naam: `blindeer-go-planning`, regio **Europe (Frankfurt)**, kies en bewaar een sterk databasewachtwoord.
@@ -18,7 +18,7 @@ Benodigd op je computer: [Node.js 20 of nieuwer](https://nodejs.org) en een term
    - **anon / publishable key** (mag in de website)
    - **service_role / secret key** (geheim! alleen voor stap 4, nooit delen of in de website zetten)
 
-## Stap 2 — Database inrichten
+## Stap 2: Database inrichten
 
 In een terminal, in de map `blindeer-go-app`:
 
@@ -33,7 +33,7 @@ npx supabase functions deploy admin-users   # teambeheer (uitnodigen, uitschakel
 Daarmee staan klaar: alle tabellen met beveiliging, de boekingsregels, jullie prijzen (incl. compleet-pakketten en
 €10 combinatiekorting), openingstijden, pauzes (ma–za), werkplek Binckhorst en capaciteit 1 auto tegelijk.
 
-## Stap 3 — Inloggen en e-mail instellen (Supabase-dashboard)
+## Stap 3: Inloggen en e-mail instellen (Supabase-dashboard)
 
 **Authentication → Sign In / Providers → Email**
 - *Allow new users to sign up*: **uit** (alleen jullie accounts)
@@ -50,7 +50,7 @@ Daarmee staan klaar: alle tabellen met beveiliging, de boekingsregels, jullie pr
 (Invite → `invite.html`, Reset password → `recovery.html`, Change email → `email_change.html`,
 Reauthentication → `reauthentication.html`). Die mails bevatten een code die je in de app invult.
 
-## Stap 4 — Accounts aanmaken (BlindeerReus, ProTintMaster, TintserviceNL)
+## Stap 4: Accounts aanmaken (BlindeerReus, ProTintMaster, TintserviceNL)
 
 ```bash
 SUPABASE_URL=https://<xxxx>.supabase.co \
@@ -72,7 +72,7 @@ Inloggen kan daarna met de **gebruikersnaam óf het e-mailadres** (hoofdletters 
 Script nogmaals draaien = wachtwoorden bijwerken; er ontstaan geen dubbele accounts.
 Later meer collega's? In de app: **Meer → Team & toegang → Collega uitnodigen** (met gebruikersnaam).
 
-## Stap 5 — Website online zetten (Vercel, gratis)
+## Stap 5: Website online zetten (Vercel, gratis)
 
 1. Maak een account op **vercel.com** en kies **Add New → Project → Import Git Repository** → kies de repo met deze app.
 2. **Root Directory**: `blindeer-go-app`. Build-instellingen komen uit `vercel.json` (niets aanpassen).
@@ -88,13 +88,13 @@ Netlify of Cloudflare Pages kan ook (`netlify.toml` en `public/_redirects` staan
 
 Elke wijziging die naar de gekoppelde branch wordt gepusht, zet Vercel automatisch online.
 
-## Stap 6 — Op de telefoon zetten
+## Stap 6: Op de telefoon zetten
 
 - **iPhone**: open het adres in **Safari** → Deel-knop → **Zet op beginscherm** → Voeg toe.
 - **Android**: open in **Chrome** → ⋮ → **Toevoegen aan startscherm / App installeren**.
 - Open daarna de app via het icoon en log één keer in. In de app staat dit ook uitgelegd (Meer → Op beginscherm zetten).
 
-## Stap 7 — Controleren
+## Stap 7: Controleren
 
 Log in als BlindeerReus en kijk bij **Meer → Bedrijfsgegevens & regels**, **Openingstijden**, **Pauzes**,
 **Pakketten** en **Kortingsregels** of alles klopt. Maak een test-afspraak, controleer dat een collega hem ziet en annuleer hem.

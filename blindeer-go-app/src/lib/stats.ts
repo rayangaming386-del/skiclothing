@@ -38,7 +38,7 @@ export function periodRange(period: Period, anchor: string, zone = getBusinessZo
   const end = start.plus({ [unit + 's']: 1 } as never);
   const label =
     period === 'week'
-      ? `Week ${start.weekNumber} · ${start.toFormat('d LLL')} – ${end.minus({ days: 1 }).toFormat('d LLL yyyy')}`
+      ? `Week ${start.weekNumber} · ${start.toFormat('d LLL')} t/m ${end.minus({ days: 1 }).toFormat('d LLL yyyy')}`
       : period === 'maand'
         ? cap(start.toFormat('LLLL yyyy'))
         : start.toFormat('yyyy');

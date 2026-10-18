@@ -202,8 +202,8 @@ export default function AppointmentDetail() {
       <Section title="Planning">
         <Card>
           <Row label="Uitvoerende partij" value={team?.name ?? 'Niet toegewezen'} />
-          <Row label="Medewerker" value={profileName(a.assignee_id) ?? '—'} />
-          <Row label="Werkplek" value={workstations.data?.find((w) => w.id === a.workstation_id)?.name ?? '—'} />
+          <Row label="Medewerker" value={profileName(a.assignee_id) ?? 'Geen'} />
+          <Row label="Werkplek" value={workstations.data?.find((w) => w.id === a.workstation_id)?.name ?? 'Geen'} />
         </Card>
       </Section>
 

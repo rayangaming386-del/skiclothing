@@ -145,7 +145,7 @@ export default function TeamAdmin() {
               {m.pending_email ? <T.Muted>Nieuw adres wacht op bevestiging: {m.pending_email}</T.Muted> : null}
               {viaFunction ? (
                 <T.Muted style={{ fontSize: 13 }}>
-                  {m.last_sign_in_at ? `Laatst ingelogd ${formatDateTime(m.last_sign_in_at)}` : m.invited_at ? `Uitgenodigd ${formatDateTime(m.invited_at)} — nog niet geactiveerd` : 'Nog nooit ingelogd'}
+                  {m.last_sign_in_at ? `Laatst ingelogd ${formatDateTime(m.last_sign_in_at)}` : m.invited_at ? `Uitgenodigd ${formatDateTime(m.invited_at)} (nog niet geactiveerd)` : 'Nog nooit ingelogd'}
                 </T.Muted>
               ) : null}
               <View style={{ marginTop: space.sm }}>

@@ -7,7 +7,7 @@
 | Prijs-, duur- en tijdzonelogica (gebruikt de echte startgegevens uit de migraties) | `npm test` | 63/63 geslaagd |
 | Typecontrole | `npx tsc --noEmit` | geen fouten |
 | Database: rechten eigenaar/collega/anoniem, uitschakelen, boekingsregels, pauzes, buffers, capaciteit, blokkades, afwijkende dagen, tijdzone/zomer-wintertijd, versieconflict, idempotentie, annuleren | `sudo -u postgres ./supabase/tests/run_db_tests.sh` | 103 controles geslaagd |
-| Gelijktijdig boeken (8 parallelle databasesessies, capaciteit 1) | onderdeel van bovenstaande | 1 geaccepteerd, 7 geweigerd (zonder lock: 8 geaccepteerd — de test is dus zinvol) |
+| Gelijktijdig boeken (8 parallelle databasesessies, capaciteit 1) | onderdeel van bovenstaande | 1 geaccepteerd, 7 geweigerd (zonder lock: 8 geaccepteerd, dus de test is zinvol) |
 | End-to-end met echte **Supabase Auth v2.186** + PostgREST + Edge Function + mail-opvang | zie hieronder | 47/47 geslaagd |
 | iOS-, Android- en web-bundel bouwen | `npx expo export --platform ios` | geslaagd |
 | App doorgeklikt in Chromium (telefoonformaat, tijdzone New York) | Playwright | inloggen → klant → auto → behandeling → planning → opslaan → agenda/account/team: geslaagd, tijden in NL-tijd |

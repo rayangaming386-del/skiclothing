@@ -51,7 +51,7 @@ export default function Login() {
           resizeMode="contain"
           accessibilityLabel="Blindeer & Go"
         />
-        <T.Muted style={{ marginTop: space.md }}>Planning — alleen voor het team</T.Muted>
+        <T.Muted style={{ marginTop: space.md }}>Planning, alleen voor het team</T.Muted>
       </View>
       <Field
         label="Gebruikersnaam of e-mailadres"

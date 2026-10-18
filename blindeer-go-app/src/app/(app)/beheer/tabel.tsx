@@ -6,7 +6,7 @@ import { useAuth } from '../../../lib/auth';
 import { formatDuration, formatEuro } from '../../../lib/pricing';
 import { formatDateTime, WEEKDAYS } from '../../../lib/time';
 
-const t5 = (s: string | null) => (s ? s.slice(0, 5) : '—');
+const t5 = (s: string | null) => (s ? s.slice(0, 5) : 'geen');
 const bool = (b: boolean | null | undefined, yes: string, no: string, unknown = '') => (b == null ? unknown : b ? yes : no);
 
 const CONFIGS: Record<string, TableConfig> = {
@@ -94,7 +94,7 @@ const CONFIGS: Record<string, TableConfig> = {
     invalidate: [['schedule']],
     describe: (r) => ({
       title: WEEKDAYS[r.weekday - 1][0].toUpperCase() + WEEKDAYS[r.weekday - 1].slice(1),
-      subtitle: r.is_closed ? 'Gesloten' : `${t5(r.open_time)} – ${t5(r.close_time)}`,
+      subtitle: r.is_closed ? 'Gesloten' : `${t5(r.open_time)}–${t5(r.close_time)}`,
     }),
     fields: [
       { key: 'weekday', label: 'Dag', type: 'select', options: 'weekday', readOnly: true },
@@ -224,7 +224,7 @@ const CONFIGS: Record<string, TableConfig> = {
     defaults: { active: true, sort_order: 10, passenger_car_only: false },
     intro: 'De meest specifieke passende regel wint. Leeg = criterium maakt niet uit. Lege prijs/duur = nog te bepalen.',
     describe: (r, ctx) => ({
-      title: `${ctx.label('services', r.service_id)} — ${r.label}`,
+      title: `${ctx.label('services', r.service_id)}: ${r.label}`,
       subtitle: `${formatEuro(r.price_cents)} · ${formatDuration(r.duration_min)}`,
       inactive: !r.active,
     }),

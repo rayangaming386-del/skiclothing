@@ -294,7 +294,7 @@ export function Notice({ kind = 'info', children }: { kind?: 'info' | 'warning' 
 }
 
 // ---------------------------------------------------------------------------
-// Toast ("Opgeslagen") — zonder animatie
+// Toast ("Opgeslagen"), zonder animatie
 // ---------------------------------------------------------------------------
 const ToastCtx = createContext<(msg: string, kind?: 'success' | 'error') => void>(() => undefined);
 export const useToast = () => useContext(ToastCtx);

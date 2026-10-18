@@ -190,7 +190,7 @@ describe('pakketten en behandeltijden', () => {
     expect(q.deviatesFromStandard).toBe(true);
     expect(q.lines[0].priceOverridden).toBe(true);
   });
-  it('Tesla-pakket (inactief tot bevestiging) — na activeren €350 / 180 min totaal', () => {
+  it('Tesla-pakket (inactief tot bevestiging), na activeren €350 / 180 min totaal', () => {
     const tesla = { make: 'Tesla', model: 'Model 3', body_type: 'sedan' as const, rear_window_count: 5 };
     const inactive = computeQuote(catalog, tesla, [line('bstijl'), line('panoramadak')]);
     expect(inactive.bundle).toBeNull();

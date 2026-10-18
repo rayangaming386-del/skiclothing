@@ -70,7 +70,7 @@ const PW = 'Startwachtwoord123';
 // 1. Eerste beheerder (zoals in docs/SETUP.md: account aanmaken + promote_to_owner)
 // ---------------------------------------------------------------------------
 {
-  const { error } = await admin.auth.admin.createUser({ email: 'rayan@e2e.test', password: PW, email_confirm: true, user_metadata: { display_name: 'Rayan — Blindeer & Go' } });
+  const { error } = await admin.auth.admin.createUser({ email: 'rayan@e2e.test', password: PW, email_confirm: true, user_metadata: { display_name: 'Rayan (Blindeer & Go)' } });
   assert.ifError(error);
   sql(`select public.promote_to_owner('rayan@e2e.test')`);
   sql(`update public.profiles set team_id = (select id from public.teams where name = 'Blindeer & Go') where email = 'rayan@e2e.test'`);

@@ -201,8 +201,8 @@ export function OfflineBanner({ online, realtime }: { online: boolean; realtime:
     <View style={s.offline} accessibilityLiveRegion="polite">
       <Text style={s.offlineText}>
         {online
-          ? '⚠ Live-verbinding onderbroken — gegevens worden opnieuw opgehaald zodra die terug is.'
-          : '⚠ Geen internetverbinding — wijzigingen kunnen nu niet worden opgeslagen.'}
+          ? '⚠ Live-verbinding onderbroken. Gegevens worden opnieuw opgehaald zodra die terug is.'
+          : '⚠ Geen internetverbinding. Wijzigingen kunnen nu niet worden opgeslagen.'}
       </Text>
     </View>
   );

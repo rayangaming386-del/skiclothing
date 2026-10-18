@@ -1,4 +1,4 @@
--- Blindeer & Go planning — basisschema
+-- Blindeer & Go planning: basisschema
 -- Alle tijden worden opgeslagen als timestamptz (UTC) en getoond in de bedrijfstijdzone
 -- (company_settings.timezone, standaard Europe/Amsterdam).
 -- Bedragen in eurocenten (integer). NULL = "nog te bepalen", nooit automatisch 0.
